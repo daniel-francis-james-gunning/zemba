@@ -15,6 +15,7 @@ from numba.typed import Dict
 from numba import njit
 import xarray as xr
 import os
+import pandas as pd
 
 # name of run.
 name = 'output/equilibrium/lgm'
@@ -177,11 +178,9 @@ fixed_ocean_albedo = None
 #---------------
 
 # Present-day from ICE6G_C dataset (Argus et al., 2014; Peltier et al., 2014)
-ICE6G_C_0kyr = xr.open_dataset(script_path+'/other_data/ice6g/I6_C.VM5a_1deg.0.nc.gz')
-input_zemba['land_fraction'] = np.asarray(ICE6G_C_0kyr["sftlf"].sum(dim="lon").to_numpy() / (ICE6G_C_0kyr["lon"].size), dtype = 'f8' )/100
-input_zemba["land_fraction"][input_zemba["land_fraction"] > 0.99] = 1.
-input_zemba["land_fraction"][input_zemba["land_fraction"] < 0.01] = 0.
-input_zemba["land_fraction"] = np.interp(lat, np.arange(-89.5, 89.5+1, 1), input_zemba["land_fraction"])
+ice6g_lat = pd.read_csv(script_path+'/other_data/ice6g/ice6g.txt', skiprows=7, usecols=[0], sep='\t').to_numpy()[:,0]
+ice6g_lf  = pd.read_csv(script_path+'/other_data/ice6g/ice6g.txt', skiprows=7, usecols=[1], sep='\t').to_numpy()[:,0]
+input_zemba['land_fraction'] = np.interp(lat, ice6g_lat, ice6g_lf)
 #|
 #|-> Ensure Antarctic continent occupies entire area south of 75S
 if input_zemba['res'] == 1.:
@@ -204,47 +203,45 @@ input_zemba["land_fraction_bounds"] = np.interp(latb, lat, input_zemba["land_fra
 #-------------------
 
 # Present-day from ICE6G_C dataset (Argus et al., 2014; Peltier et al., 2014)
-# ICE6G_C_0kyr = xr.open_dataset(script_path+'/other_data/ice6g/I6_C.VM5a_1deg.0.nc.gz')
-# input_zemba["land_height"] = np.array(((ICE6G_C_0kyr["orog"]*ICE6G_C_0kyr["sftlf"]).sum(dim="lon")/ICE6G_C_0kyr["sftlf"].sum(dim="lon")).to_numpy().tolist())
-# input_zemba["land_height"] = np.interp(lat, np.arange(-89.5, 89.5+1, 1), input_zemba["land_height"])
+# ice6g_lat   = pd.read_csv(script_path+'/other_data/ice6g/ice6g.txt', skiprows=7, usecols=[0], sep='\t').to_numpy()[:,0]
+# ice6g_orog  = pd.read_csv(script_path+'/other_data/ice6g/ice6g.txt', skiprows=7, usecols=[3], sep='\t').to_numpy()[:,0]
+# input_zemba['land_height'] = np.interp(lat, ice6g_lat, ice6g_orog)
 
-# LGM (21 kyr BP) from ICE6G_C dataset (Argus et al., 2014; Peltier et al., 2014)
-ICE6G_C_21kyr=xr.open_dataset(script_path+'/other_data/ice6g/I6_C.VM5a_1deg.21.nc.gz')
-ICE6G_C_0kyr=xr.open_dataset(script_path+'/other_data/ice6g/I6_C.VM5a_1deg.0.nc.gz')
-input_zemba["land_height"] = np.array(((ICE6G_C_21kyr["orog"]*ICE6G_C_0kyr["sftlf"]).sum(dim="lon")/ICE6G_C_0kyr["sftlf"].sum(dim="lon")).to_numpy().tolist())
-input_zemba["land_height"] = np.interp(lat, np.arange(-89.5, 89.5+1, 1), input_zemba["land_height"])
+# LGM from ICE6G_C dataset (Argus et al., 2014; Peltier et al., 2014)
+ice6g_lat   = pd.read_csv(script_path+'/other_data/ice6g/ice6g.txt', skiprows=7, usecols=[0], sep='\t').to_numpy()[:,0]
+ice6g_orog  = pd.read_csv(script_path+'/other_data/ice6g/ice6g.txt', skiprows=7, usecols=[4], sep='\t').to_numpy()[:,0]
+input_zemba['land_height'] = np.interp(lat, ice6g_lat, ice6g_orog)
+
 
 # Flat.
 # input_zemba['land_height'] = np.zeros(( lat.size ))
-
 
 # Ice fractions <----------------------------------------------------------------------------------COMMENT/UNCOMMENT
 #--------------
 
 # Present-day from ICE6G_C dataset (Argus et al., 2014; Peltier et al., 2014)
-# ICE6G_C_0kyr = xr.open_dataset(script_path+'/other_data/ice6g/I6_C.VM5a_1deg.0.nc.gz')
-# input_zemba["ice_fraction"] = np.array(((ICE6G_C_0kyr["sftgif"]*ICE6G_C_0kyr["sftlf"]).sum(dim="lon")/ICE6G_C_0kyr["sftlf"].sum(dim="lon")).to_numpy().tolist())/100
-# input_zemba["ice_fraction"] = np.interp(lat, np.arange(-89.5, 89.5+1, 1), input_zemba["ice_fraction"])
+# ice6g_lat = pd.read_csv(script_path+'/other_data/ice6g/ice6g.txt', skiprows=7, usecols=[0], sep='\t').to_numpy()[:,0]
+# ice6g_if  = pd.read_csv(script_path+'/other_data/ice6g/ice6g.txt', skiprows=7, usecols=[5], sep='\t').to_numpy()[:,0]
+# input_zemba['ice_fraction'] = np.interp(lat, ice6g_lat, ice6g_if)
 
-# LGM (21 kyr BP) from ICE6G_C dataset (Argus et al., 2014; Peltier et al., 2014) 
-ICE6G_C_0kyr = xr.open_dataset(script_path+'/other_data/ice6g/I6_C.VM5a_1deg.0.nc.gz')
-ICE6G_C_21kyr = xr.open_dataset(script_path+'/other_data/ice6g/I6_C.VM5a_1deg.21.nc.gz')
-input_zemba["ice_fraction"] = np.array(((ICE6G_C_21kyr["sftgif"]*ICE6G_C_0kyr["sftlf"]).sum(dim="lon")/ICE6G_C_0kyr["sftlf"].sum(dim="lon")).to_numpy().tolist())/100
-input_zemba["ice_fraction"] = np.interp(lat, np.arange(-89.5, 89.5+1, 1), input_zemba["ice_fraction"])
+# LGM from ICE6G_C dataset (Argus et al., 2014; Peltier et al., 2014)
+ice6g_lat = pd.read_csv(script_path+'/other_data/ice6g/ice6g.txt', skiprows=7, usecols=[0], sep='\t').to_numpy()[:,0]
+ice6g_if  = pd.read_csv(script_path+'/other_data/ice6g/ice6g.txt', skiprows=7, usecols=[6], sep='\t').to_numpy()[:,0]
+input_zemba['ice_fraction'] = np.interp(lat, ice6g_lat, ice6g_if)
 
 # No ice.
-# input_zemba['land_height'] = np.zeros(( lat.size ))
+# input_zemba['ice_fraction'] = np.zeros(( lat.size ))
 
 
 # Cloud cover <----------------------------------------------------------------------------------COMMENT/UNCOMMENT
 #------------
 
-# Pre-industrial from Norwegian Earth System Model version 2 (NorESM2) (Seland et al., 2020.)
-NorESM2 = xr.open_dataset(script_path+"/other_data/noresm2/noresm2_annual.nc")
-input_zemba['ccl'] = (NorESM2["clt"]*NorESM2["land_mask"]).mean(dim="lon", skipna=True).to_numpy()/100
-input_zemba['cco'] = (NorESM2["clt"]*NorESM2["ocean_mask"]).mean(dim="lon", skipna=True).to_numpy()/100
-input_zemba["ccl"] = np.interp(lat, np.arange(-89.5, 89.5+1, 1), input_zemba["ccl"])
-input_zemba["cco"] = np.interp(lat, np.arange(-89.5, 89.5+1, 1), input_zemba["cco"])
+# NorESM2-MM PI Control Simulation (Seland et al., 2020.)
+noresm2_lat   = pd.read_csv(script_path+'/other_data/noresm2/noresm2_clouds.txt', skiprows=4, usecols=[0], sep='\t', encoding='ISO-8859-1').to_numpy()[:,0]
+noresm2_ccl   = pd.read_csv(script_path+'/other_data/noresm2/noresm2_clouds.txt', skiprows=4, usecols=[2], sep='\t', encoding='ISO-8859-1').to_numpy()[:,0]/100
+noresm2_cco   = pd.read_csv(script_path+'/other_data/noresm2/noresm2_clouds.txt', skiprows=4, usecols=[3], sep='\t', encoding='ISO-8859-1').to_numpy()[:,0]/100
+input_zemba['ccl'] = np.interp(lat, noresm2_lat, noresm2_ccl)
+input_zemba['cco'] = np.interp(lat, noresm2_lat, noresm2_cco)
 
 # Constant and ubiqitous cloud cover of 0.5 (for experimental purposes)
 # input_zemba['ccl'] = np.zeros((lat.size))+0.5

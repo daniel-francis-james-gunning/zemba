@@ -1,0 +1,9 @@
+monthly-mean snow and sea ice cover from ERA5 n
+Reference for ERA5: Hersbach, H., Bell, B., Berrisford, P., Biavati, G., Horányi, A., Muñoz Sabater, J., Nicolas, J., Peubey, C., Radu, R., Rozum, I., Schepers, D., Simmons, A., Soci, C., Dee, D., Thépaut, J-N. (2023): ERA5 monthly averaged data on single levels from 1940 to present. Copernicus Climate Change Service (C3S) Climate Data Store (CDS), DOI: 10.24381/cds.f17050d7 (Accessed on 28-02-2024) 
+ & Muñoz Sabater, J. (2019): ERA5-Land hourly data from 1950 to present. Copernicus Climate Change Service (C3S) Climate Data Store (CDS). DOI: 10.24381/cds.e2161bac (Accessed on 28-02-2024)
+
+	0	1	2	3	4	5	6	7	8	9	10	11
+Sea_ice_cover(NH)	13.8	14.63	14.78	14.34	13.37	11.64	9.54	7.74	6.85	8.18	10.29	12.45
+Sea_ice_cover(SH)	4.08	2.69	2.3	6.72	8.43	11.22	13.78	15.42	17.39	16.88	13.48	8.03
+Snow_cover(NH)	43.41	43.35	39.62	31.35	20.29	7.45	3.09	2.97	6.21	18.01	30.72	39.28
+Snow_cover(SH)	13.82	13.81	13.81	13.85	14.01	14.27	14.41	14.31	14.19	14.07	13.95	13.86

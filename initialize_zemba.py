@@ -897,19 +897,16 @@ def get_constants(INPUT):
 # Function which returns initialized model state
 #-----------------------------------------------
 
-def initialize_state(Var, INPUT, state_type):
+def initialize_state(Var, INPUT):
     
     '''
     Function that returns an initialized state of the model.
     
-    Option: if state_type == noresm: Initialize to NorESM2 pre-industrial
-            if state_type == norm:   Initialize to arbitrary fields...
     '''
     
     State = Dict.empty(key_type=types.unicode_type, value_type=types.float64[:])
     
     # load NorESM2
-    NorESM2 = xr.open_dataset(os.getcwd() + '/other_data/noresm2/noresm2_annual.nc')
     
     #-------------------------
     # Surface temperatures (K)
@@ -919,13 +916,7 @@ def initialize_state(Var, INPUT, state_type):
     #-------------------------
     
     # average
-    if state_type == 'noresm':
-        State["Ta"] = (NorESM2["tas"]).mean(dim="lon", skipna=True).to_numpy()
-        if INPUT['res']!=1.:
-            State["Ta"] = np.interp(Var["lat"], np.arange(-89.5, 89.5+1, 1), State["Ta"])
-        
-    if state_type == 'norm':
-        State['Ta'] = np.zeros((Var["lat"].size)) + (np.sin(np.linspace(0, np.pi, Var["lat"].size))*30)+273 
+    State['Ta'] = np.zeros((Var["lat"].size)) + (np.sin(np.linspace(0, np.pi, Var["lat"].size))*30)+273 
          
     # land.
     State["Tal"] = State["Ta"].copy()
@@ -938,13 +929,7 @@ def initialize_state(Var, INPUT, state_type):
     # land temperatures
     #------------------
     
-    if state_type == 'noresm':
-        State["Tl"] = (NorESM2["ts"]).mean(dim="lon", skipna=True).to_numpy()
-        if INPUT['res']!=1.:
-            State["Tl"] = np.interp(Var["lat"], np.arange(-89.5, 89.5+1, 1), State["Tl"])
-        
-    if state_type == 'norm':
-        State['Tl'] = np.zeros((Var["lat"].size)) + (np.sin(np.linspace(0, np.pi, Var["lat"].size))*30)+273 
+    State['Tl'] = np.zeros((Var["lat"].size)) + (np.sin(np.linspace(0, np.pi, Var["lat"].size))*30)+273 
          
     State["Tl"][np.asarray(Var["idxao"], dtype = "int")] = np.NaN
     
@@ -955,13 +940,7 @@ def initialize_state(Var, INPUT, state_type):
     
     # LAYER 1
     
-    if state_type == 'noresm':
-        To1 = (NorESM2["ts"]).mean(dim="lon", skipna=True).to_numpy()
-        if INPUT['res']!=1.:
-            To1 = np.interp(Var["lat"], np.arange(-89.5, 89.5+1, 1), To1)
-        
-    if state_type == 'norm':
-        To1 = np.zeros((Var["lat"].size)) + (np.sin(np.linspace(0, np.pi, Var["lat"].size))*30)+273 
+    To1 = np.zeros((Var["lat"].size)) + (np.sin(np.linspace(0, np.pi, Var["lat"].size))*30)+273 
     
     To1[To1 < Var["Ksi"]] = Var["Ksi"]                    # no freezing ocean.
     To1[np.asarray(Var["idxal"], dtype = "int")] = np.NaN # no ocean in South
@@ -997,13 +976,7 @@ def initialize_state(Var, INPUT, state_type):
     # Surface ocean temperature (includes sea-ice temperature.)
     #----------------------------------------------------------
     
-    if state_type == 'NorESM2':
-        State["Tos"] = (NorESM2["ts"]).mean(dim="lon", skipna=True).to_numpy()
-        if INPUT['res']!=1.:
-            State["Tos"] = np.interp(Var["lat"], np.arange(-89.5, 89.5+1, 1), State["Tos"])
-             
-    if state_type == 'norm':
-        State['Tos'] =  np.zeros((Var["lat"].size)) + (np.sin(np.linspace(0, np.pi, Var["lat"].size))*30)+273 
+    State['Tos'] =  np.zeros((Var["lat"].size)) + (np.sin(np.linspace(0, np.pi, Var["lat"].size))*30)+273 
    
     State["Tos"][np.asarray(Var["idxal"], dtype = "int")] = np.NaN # no ocean in South
     
@@ -1013,12 +986,7 @@ def initialize_state(Var, INPUT, state_type):
     # average surface temperature
     #----------------------------
     
-    if state_type == 'NorESM2':
-        State["Ts"]  = (NorESM2["ts"]).mean(dim="lon", skipna=True).to_numpy()
-        if INPUT['res']!=1.:
-            State["Ts"] = np.interp(Var["lat"], np.arange(-89.5, 89.5+1, 1), State["Ts"])
-    if state_type == 'norm':
-        State['Ts'] = np.zeros((Var["lat"].size)) + (np.sin(np.linspace(0, np.pi, Var["lat"].size))*30)+273 
+    State['Ts'] = np.zeros((Var["lat"].size)) + (np.sin(np.linspace(0, np.pi, Var["lat"].size))*30)+273 
     
     # temperature of sea-ice
     #-----------------------
@@ -1221,13 +1189,7 @@ def initialize_state(Var, INPUT, state_type):
     #----------------------------------------
     
     # average
-    if state_type == 'noresm':
-        State["Q"] = (NorESM2["huss"]).mean(dim="lon", skipna=True).to_numpy()
-        if INPUT['res']!=1.:
-            State["Q"] = np.interp(Var["lat"], np.arange(-89.5, 89.5+1, 1), State["Ta"])
-        
-    if state_type == 'norm':
-        State['Q'] = np.zeros((Var["lat"].size)) + (np.sin(np.linspace(0, np.pi, Var["lat"].size))*0.0175)
+    State['Q'] = np.zeros((Var["lat"].size)) + (np.sin(np.linspace(0, np.pi, Var["lat"].size))*0.0175)
          
     # land.
     State["Q_land"] = np.copy(State["Q"]) 

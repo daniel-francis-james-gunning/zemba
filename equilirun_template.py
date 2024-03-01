@@ -68,7 +68,7 @@ for exp in input_list:
     # initialize model state
     #-----------------------
     
-    State = initialize_state(Var, input_zemba, state_type='norm')
+    State = initialize_state(Var, input_zemba)
     
     # insolation forcing
     #-------------------
