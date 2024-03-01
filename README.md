@@ -27,16 +27,14 @@ Running ZEMBA requires some python packages, most importantly [NUMBA](https://nu
 We recommend creating a new conda environment in the command line (named in this example "zemba_env") with the following packages included:
 
 ```
-conda create -n zemba_env python numpy numba xarray proplot matplotlib
+conda create -n zemba_env python numpy numba xarray proplot matplotlib pandas
 ```
 
 ## Running the model
 
-To run an equillibirum simulation of the model for the pre-industrial, you can use either the 'equilirun_template.py' in an integrated development environment (IDE) of your choice or the jupyter notebook file "equilirun_template.ipynb".
+To run an equillibirum simulation of the model for the pre-industrial, you can use either the 'equilirun_template.py' in an integrated development environment (IDE) of your choice or go through the the jupyter notebook file "example_run.ipynb".
 
-Put simply, the model requires a number of inputs to run, including zonal-mean land fractions, land elevation, ice fractions over land, cloud cover over land and ocean, etc. These are all kept in an input file. In this case, the input file is named "input_template.py" stored in the input folder. In "input_template.py", land fractions, land elevations and ice fractions are taken from the ICE-6G-C (Argus et al., 2014; Peltier et al., 2014) and cloud cover is taken from a pre-industrial simulation of NorESM2 (Seland et al., 2020). In the file, you will see the option of using other land fractions (etc). from the Last Glacial Maximum (LGM) around 21 thousand years ago. Alternatively, you could insert land and ice fractions of your choice within the input file.
+More details on ZEMBA can be found in the "example_run.ipynb" jupyter notebook, which goes through an example of running the model and plotting the data....
 
-Once the model is running, the output will be stored in the output folder. In this case, it will be named "template_moist_res5.0.pkl". It contains a nested dictionary of output from the model.
-
-More details on running the model is found in the "equilirun_template.ipynb" notebook, which goes through an example of running the model and plotting the data....
+The model and this Github page are still in development. If anything is unclear or not working, contact me at : daniel.gunning@uib.no
 
