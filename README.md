@@ -38,3 +38,6 @@ More details on ZEMBA can be found in the "example_run.ipynb" jupyter notebook, 
 
 The model and this Github page are still in development. If anything is unclear or not working, contact me at : daniel.gunning@uib.no
 
+## Pre-Release DOI
+
+DOI: 10.5281/zenodo.10732139
