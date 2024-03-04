@@ -37,7 +37,3 @@ To run an equillibirum simulation of the model for the pre-industrial, you can u
 More details on ZEMBA can be found in the "example_run.ipynb" jupyter notebook, which goes through an example of running the model and plotting the data....
 
 The model and this Github page are still in development. If anything is unclear or not working, contact me at : daniel.gunning@uib.no
-
-## Pre-Release DOI
-
-DOI: 10.5281/zenodo.10732139
