@@ -12,9 +12,10 @@ from numba.typed import Dict
 from numba.core import types
 from utilities import *
 
-
 @njit(nogil = True)
 def mean_numba(a):
+    
+    'Returns average of numba array along 2nd axis...'
 
     res = []
     for i in prange(a.shape[0]):
@@ -23,9 +24,9 @@ def mean_numba(a):
     return np.array(res)
 
 
-#------------------------------------------------------------------------------
+#------------------------------------
 # Energy balance model: sub-processes
-#------------------------------------------------------------------------------
+#------------------------------------
 
 @njit(nogil = True, cache=True)
 def calculate_density(t):
@@ -49,6 +50,9 @@ def calculate_density(t):
 def ocean_overturning_strength(to, lat, olat, oarea, dlat, idxcos, gamma, drn0,
                                drs0, zeta, tosN0, tosS0, w0, dz0, Var):
     
+    '''
+    Calculates changes in ocean overturning strength.
+    '''
     
     # annual-mean surface ocean temperature
     tos = mean_numba(to)[Var["idxolyr1"].astype('i8')]
@@ -104,6 +108,9 @@ def ocean_overturning_strength(to, lat, olat, oarea, dlat, idxcos, gamma, drn0,
 def midpoint(to, lat, olat, oarea, dlat, idxcos, gamma, drn0,
                                drs0, zeta, ton0, tos0, w0, dz0, Var):
     
+    '''
+    Calculates changes in mid-point of ocean circulation
+    '''
     
     # annual-mean surface ocean temperature
     tos = mean_numba(to)[Var["idxolyr1"].astype('i8')]
@@ -154,9 +161,6 @@ def horizontal_ocean_velocities(olat, olatb, olatr, olatbr, dlatr, ocean_cntr,
     '''
     Calculates the meridional ocean velocities (in the top and bottom ocean
     layer) based on the prescribed vertical ocean velocities.
-    
-    Option to change the centre of ocean circulation (not fixed to the 
-    equator)
     '''
     
     w = w0.copy()
@@ -258,124 +262,8 @@ def horizontal_ocean_velocities(olat, olatb, olatr, olatbr, dlatr, ocean_cntr,
     # return arrays
     #--------------
     
-    
-    
     return u1, u2, w
 
-@njit(nogil = True, cache=True)
-def LWR_param2(latr, sigma, CO2, CH4, qa, ta, ts, tagx, surface_height, cloud_cover, Lv):
-      
-    
-    #------------------------
-    # lapse-rate modification
-    #------------------------
-    
-    taz = ta  - 0.0065 * surface_height
-    tsz = ts  - 0.0065 * surface_height
-
-    #---------------------------------
-    # Upwards radiation at the surface
-    #---------------------------------
-    
-    rlus = sigma * 0.96 * (tsz**4)
-    
-    #---------------------------------
-    # Donwards radiation at the surface
-    #---------------------------------
-    
-    # atmospheric emissivity
-    atm_emissivity = 0.85 + 0.1*(np.cos(latr))**2
-    
-    rlds = sigma * atm_emissivity * (taz**4)
-    
-    
-    #--------------------------------
-    # TOA outgoing longwave radiation
-    #--------------------------------
-    
-    # gray body radiation temperature
-    #--------------------------------
-    
-    tac = taz - cloud_cover*8.
-    
-    # relative humidity
-    #------------------
-    
-    # saturation specific humidity of atmosphere
-    qsa = saturation_specific_humidity(Lv, ta, np.zeros((latr.size)))
-    
-    # relative humidity
-    RH  = (qa / qsa) 
-    
-    # b coefficients
-    #---------------
-    
-    b00 =  2.43414e2
-    b10 = -3.47968e1
-    b20 =  1.02790e1
-    
-    b01 =  2.60065e0
-    b11 = -1.62064e0
-    b21 =  6.34856e-1
-    
-    b02 =  4.40272e-3
-    b12 = -2.26092e-2
-    b22 =  1.12265e-2
-    
-    b03 = -2.05237e-5
-    b13 = -9.67000e-5
-    b23 =  5.62925e-5
-    
-    # a coefficients
-    #---------------
-    
-    a0 = b00 + b10*RH + b20*(RH**2)
-    a1 = b01 + b11*RH + b21*(RH**2)
-    a2 = b02 + b12*RH + b22*(RH**2)
-    a3 = b03 + b13*RH + b23*(RH**2)
-    
-    # # CO2 forcing
-    # #------------
-    
-    # CO2 reference concentration
-    CO2ref      = 278
-    
-    # forcing of CO2 doubling
-    delta_2xCO2 = 5.35
-    
-    # CO2 forcing
-    CO2_forcing = delta_2xCO2* np.log(CO2/CO2ref)
-    
-    # # CH4 forcing
-    # #------------
-    
-    # # CH4 reference concentration
-    # CH4ref = 700
-    # v      = 0.036
-    
-    # # CH4 forcing
-    # CH4_forcing = v*(np.sqrt(CH4**-1) - np.sqrt(CH4ref**-1))
-    
-    # # water vapor feedback
-    # #---------------------
-    
-    # # feedback parameter
-    # lamda    = 1 # W m^-2 K^-1
-    
-    # # reference PI global temperature
-    # tamodern = 287.8
-    
-    # # water vapor forcing
-    # delta_Ta = lamda * (tagx - tamodern)
-    
-    # outgoing longwave radiation
-    #----------------------------
-    
-    tazk = taz - 273.15
-    
-    rlut = a0 + a1*tazk + a2*tazk**2 + a3*tazk**3 - CO2_forcing #- CH4_forcing - delta_Ta
-    
-    return rlus, rlds, rlut
 
 @njit(nogil = True, cache=True)
 def LWR_param(sigma, CO2, taz, tsz, tatot, z, cloud_cover, cloud_emissivity, GHG_amp):
@@ -644,8 +532,6 @@ def SWR_param(cloud_cover, ta, alpha_nc, alpha_cl, u, z, s, tau):
     return swt_u, swb_d, swb_u 
 
 
-
-
 @njit(nogil = True, cache=True)
 def surface_albedo_land(lat, snow_thick, melt, alphag, alphai, alphas, alphaws,
                         ice_fraction, snow_fraction, cza, mask, snow):
@@ -750,10 +636,6 @@ def surface_albedo_land(lat, snow_thick, melt, alphag, alphai, alphas, alphaws,
     return albedo
 
 
-
-
-
-
 @njit(nogil = True, cache=True)
 def surface_albedo_land_v2(ebm_lat, land_height, lr, alphag, Tal, Tl,
                            alphas, alphaws, alphai, cza, land_mask,
@@ -848,8 +730,6 @@ def surface_albedo_land_v2(ebm_lat, land_height, lr, alphag, Tal, Tl,
                  
                  )
     
-    
-    
     # total land albedo (area-weighted for ice fraction)
     #---------------------------------------------------
     
@@ -880,7 +760,6 @@ def surface_albedo_ocean(ebm_lat, si_fraction, si_melt_flux, alpha_si_min,
     Calculates the surface albedo over ocean
     """
                          
-        
     # Sea-ice albedo
     #---------------
     
@@ -912,21 +791,18 @@ def surface_albedo_ocean(ebm_lat, si_fraction, si_melt_flux, alpha_si_min,
     # open ocean albedo
     #------------------  
   
-     
     # Calculates the broadband surface ocean albedo as a function of the 
     # solar zenith angle, based on the parameterization of Taylor et al.,
     # (1996)
      
     o_albedo = 0.037 / ( (1.1 * cza**1.4) + 0.15)
      
-  
     # weighted mean ocean albedo
     #---------------------------
     
     albedo = (si_albedo * si_fraction) + (
          o_albedo * (1 - si_fraction))
     
- 
     # mask
     #------
     
@@ -1024,7 +900,6 @@ def surface_pressure(h):
     
     return p 
 
-   
 
 @njit(nogil = True, cache=True)
 def saturation_specific_humidity(Lv, T, h):
@@ -1149,17 +1024,14 @@ def precipitation(lat, ta, qa, surface_height, Lv, r, atm_rho, atm_depth, secs_i
     
     '''
     Calculates the precipitation flux (in kg m^-2 s^-1), rate (in m/yr)
-    and associated heat flux (in W m^-2). Based on parameterization of 
-    Fanning and Weaver (1996).
+    and associated heat flux (in W m^-2). 
     '''
-    
 
     # Initialize the precipitation flux array
     #----------------------------------------
     
     precipitation_flux = np.zeros((lat.size))
     
-
     # Saturation specific humidity of the atmosphere
     #-----------------------------------------------
     
@@ -1201,19 +1073,16 @@ def precipitation(lat, ta, qa, surface_height, Lv, r, atm_rho, atm_depth, secs_i
     # mask
     precipitation_flux = precipitation_flux*mask
     
-
     # Precipitation rate (m/day)
     #---------------------------
     
     precipitation_rate = (precipitation_flux / water_rho) * secs_in_day
     
-
     # Latent heat flux of precipitation (W m^-2)
     #-------------------------------------------
     
     precipitation_heat_flux = precipitation_flux * Lv
     
-
     # Return precipitation arrays
     #----------------------------
 
@@ -1483,7 +1352,6 @@ def snowfall(lat, tas, precip_flux, height, lr, Lm):
     latitudinal band and the associated latent heat flux.
     '''
     
-
     # Snowfall fraction
     #------------------
     
@@ -1662,9 +1530,6 @@ def snow_accumulation(snowfall_fraction, snow_fraction, snow_thick, precip_rate,
     
    return snow_fraction1, snow_thick1
     
-    
-    
-    
 
 @njit(nogil = True, cache=True)
 def sea_ice(to, tsi, sivol, snfl, sifraction, ebm_lat, ls, ice_rho, Lm,
@@ -1685,7 +1550,6 @@ def sea_ice(to, tsi, sivol, snfl, sifraction, ebm_lat, ls, ice_rho, Lm,
     #----> sivol_t2 = sea ice volume in current time step (after this function)
     sivol_t2 = np.zeros((ebm_lat.size)) # m^3
     sivol_t2[ls] = np.NaN
-    
     
   
     # Set the surface ocean temperature of the previous time-step.
@@ -2063,7 +1927,6 @@ def snow_melt(lat, snow_thick, snow_fraction, ts, lr, height, K, land_hc, Lm,
         snow_fraction1[i] = 0.
   
         
-    
     #---------------------------------------
     # Convert excess melt to surface heating
     #---------------------------------------
@@ -2127,9 +1990,12 @@ def snow_melt(lat, snow_thick, snow_fraction, ts, lr, height, K, land_hc, Lm,
     return snow_thick1, snow_fraction1, tsc, melt_rate, melt_flux 
 
 
-
 @njit(nogil = True, cache=True)
-def ocean_fluxes2(State, Var, INPUT):
+def ocean_fluxes(State, Var, INPUT):
+    
+    '''
+    Calculates meridional heat fluxes associated with ocean heat transport
+    '''
     
     
     # indexes for ocean boundaries
@@ -2414,8 +2280,6 @@ def land_sea_moist_mixing(Var, State, INPUT):
     
     
     
-
-
 #------------------------------------
 # Energy balance model: main function
 #------------------------------------
@@ -2920,7 +2784,7 @@ def ebm(Var, State, INPUT, I, znth_dw, settings,
                     if ocn_transport==1: # if ocean heat transport turned on.
                     
                         # ocean (advective and diffusive) heat transport                   
-                        vadvf, vadvf_conv, hdiffi, hdiffi_conv, vdiff, vdiff_conv, hdiffs, hdiffs_conv, advf, advf_conv = ocean_fluxes2(State, Var, INPUT)
+                        vadvf, vadvf_conv, hdiffi, hdiffi_conv, vdiff, vdiff_conv, hdiffs, hdiffs_conv, advf, advf_conv = ocean_fluxes(State, Var, INPUT)
                     
                         if fixed_ocean_transport is None: # ocean heat transport calculated internally
                         

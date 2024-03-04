@@ -43,7 +43,7 @@ output_path = script_path + '/output'
 # List of experiments [input files]
 #--------------------
 
-input_list = [ #'input_pi', 
+input_list = [  'input_pi', 
                 'input_lgm_icef',
                 'input_lgm_icefh',
                 'input_lgm_icefh_co2',
@@ -51,8 +51,8 @@ input_list = [ #'input_pi',
                 'input_lgm_icefh_co2_inso_oc10s',
                 'input_lgm_75%ov',
                 'input_lgm_50%ov',
-                # 'input_2xCO2',
-                # 'input_2%Inso',
+                'input_2xCO2',
+                'input_2%Inso',
               ]
 
 
@@ -64,24 +64,38 @@ for exp in input_list:
     
     # load input file
     #----------------
-    
     os.chdir(input_path)
     file = importlib.import_module(exp)
     os.chdir(script_path)
-    name           = file.name                         # run name
-    input_zemba    = file.input_zemba                  # input dictionary
-    settings_zemba = file.settings_zemba               # settings dictionary
-    version        = file.input_version                # version
-
     
-    fixed_land_albedo  = file.fixed_land_albedo        # fixed land albedo
-    fixed_ocean_albedo = file.fixed_ocean_albedo       # fixed ocean albedo
+    # load data from input file
+    #--------------------------
+    
+    # run name
+    name           = file.name 
+
+    # input dictionary                
+    input_zemba    = file.input_zemba   
+
+    # settings dictionary           
+    settings_zemba = file.settings_zemba   
+
+    # version        
+    version        = file.input_version   
+             
+    # fixed land albedo
+    fixed_land_albedo  = file.fixed_land_albedo 
+
+    # fixed ocean albedo   
+    fixed_ocean_albedo = file.fixed_ocean_albedo       
                                     
-    fixed_snow_fraction = file.fixed_snow_fraction     # fixed land snow
+    # fixed land snow
+    fixed_snow_fraction = file.fixed_snow_fraction     
     fixed_snow_thick    = file.fixed_snow_thick
     fixed_snow_melt     = file.fixed_snow_melt
-                                            
-    fixed_si_fraction = file.fixed_si_fraction         # fix sea ice
+    
+    # fix sea ice                                        
+    fixed_si_fraction = file.fixed_si_fraction         
     fixed_si_thick    = file.fixed_si_thick
     fixed_si_melt     = file.fixed_si_melt
     
@@ -105,7 +119,6 @@ for exp in input_list:
     ecc, obl, pre, I, znth_sw, znth_dw = calculate_daily_insolation(orb, Var["latr"], Var["ndays"], day_type = 1)
     I = I * input_zemba['strength_of_insolation'] # modify strength (experimental)
     
-    #----------------------------------
     # Change ocean overturning strength
     #----------------------------------
 
@@ -192,8 +205,8 @@ for exp in input_list:
 
 ndir = output_path+"/plots/"
 
-# os.chdir(ndir)
-# exec(open("plot_f01.py").read())
+os.chdir(ndir)
+exec(open("plot_f01.py").read())
 
 os.chdir(ndir)
 exec(open("plot_f02.py").read())

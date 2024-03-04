@@ -1,71 +1,51 @@
 # -*- coding: utf-8 -*-
 """
-Plot Figure 3 (Pre-Industrial - Results - Hydrological)
+plot figure 3 - results section - pre-industrial precipitation, snowfall, evaporation
 
 @author: Daniel Gunning 
 """
 
 import numpy as np
 import proplot as pplt
-from matplotlib.font_manager import FontProperties
 import os
 import pickle
 import xarray as xr
 
+# paths
 output_path  = os.path.dirname(os.getcwd())
 script_path  = os.path.dirname(output_path)
 input_path   = script_path + '/input'
 
-# change directory
 os.chdir(script_path)
-
 from utilities import *
 
-#---------
-# EBM data
-#---------
-
-# load pre-industrial results
-#----------------------------
+#------------------------------
+# load zemba pre-industrial sim
+#------------------------------
 
 # load data
 with open('output/equilibrium/pi_moist_res5.0.pkl', 'rb') as f:
-    pi_dict = pickle.load(f)
-pi  = pi_dict['StateYear']
-Var = pi_dict['Var']
-INPUT = pi_dict['Input']
+    pi_data = pickle.load(f)
     
-ebm = {}
-noresm = {}
-era5 = {}
-   
+pi    = pi_data['StateYear']
+Var   = pi_data['Var']
+INPUT = pi_data['Input']
+    
+# precipitation
+zemba_precip        = (pi['precip_flux'].mean(axis=1)/1000)*(60*60*24)*1000 
+zemba_precip_global = global_mean2(zemba_precip, Var["lat"], Var["dlat"])
 
-# annual and zonal mean
-#----------------------
+# snowfall
+zemba_sf        = (pi['snowfall_flux'].mean(axis=1)/1000)*(60*60*24)*1000  
+zemba_sf_global = global_mean2(zemba_sf, Var["lat"], Var["dlat"])
 
-# average
-ebm_precip = (pi['precip_flux'].mean(axis=1)/1000)*(60*60*24)*1000  # precipitation
-# ebm_precip_hadley_off = (pi_hadley_off['precip_flux'].mean(axis=1)/1000)*(60*60*24)*1000  # precipitation
-ebm_precip_global = global_mean2(ebm_precip, Var["lat"], Var["dlat"])
+# evaporation
+zemba_evap        = (pi['evap_flux'].mean(axis=1)/1000)*(60*60*24)*1000
+zemba_evap_global = global_mean2(zemba_evap, Var["lat"], Var["dlat"])
 
-ebm_sf = (pi['snowfall_flux'].mean(axis=1)/1000)*(60*60*24)*1000  # precipitation
-ebm_sf_global = global_mean2(ebm_sf, Var["lat"], Var["dlat"])
-
-ebm_evap   = (pi['evap_flux'].mean(axis=1)/1000)*(60*60*24)*1000    # evaporation
-ebm_evap_global = global_mean2(ebm_evap, Var["lat"], Var["dlat"])
-
-# land
-ebm_precip_land = (pi['precip_flux_land'].mean(axis=1)/1000)*(60*60*24)*1000  # precipitation
-ebm_evap_land   = (pi['evap_flux_land'].mean(axis=1)/1000)*(60*60*24)*1000    # evaporationebm_evap_land_zones = spatial_average(ebm_evap_land, Var["lat"], np.diff(Var["lat"])[0], Var["land_fraction"]) # averaged for different zones...
-
-# ocean
-ebm_precip_ocean = (pi['precip_flux_ocean'].mean(axis=1)/1000)*(60*60*24)*1000  # precipitation
-ebm_evap_ocean   = (pi['evap_flux_ocean'].mean(axis=1)/1000)*(60*60*24)*1000    # evaporation
-
-
-#-----------------
-# Add NorESM2 data
-#-----------------
+#-----------------------------------
+# load pre-industrial NorESM2 output
+#-----------------------------------
 
 # load annual data
 noresm2_lat      = np.loadtxt(script_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=0)
@@ -114,17 +94,16 @@ era5_precip_global   = global_mean2(era5_precip, Var["lat"], Var["dlat"])
 era5_sf_global       = global_mean2(era5_sf, Var["lat"], Var["dlat"])
 era5_evap_global     = global_mean2(era5_evap, Var["lat"], Var["dlat"])
 
-#------------
-# Plot figure 
-#------------
+#---------
+# plotting
+#---------
 
+# colors and line widths
+#-----------------------
 
-# constants
-#----------
-
-ebm_color = "black"
-ebm_lw    = 1.
-ebm_ls    = "-"
+zemba_color = "black"
+zemba_lw    = 1.
+zemba_ls    = "-"
 
 noresm2_color = "blue9"
 noresm2_lw    = 1.
@@ -134,16 +113,15 @@ era5_color = "red9"
 era5_lw    = 1.
 era5_ls    = "-"
 
-ebm_minus_noresm2_color = "blue9"
-ebm_minus_noresm2_lw    = 1.
-ebm_minus_noresm2_ls    = "-."
+zemba_minus_noresm2_color = "blue9"
+zemba_minus_noresm2_lw    = 1.
+zemba_minus_noresm2_ls    = "-."
 
-ebm_minus_era5_color = "red9"
-ebm_minus_era5_lw    = 1.
-ebm_minus_era5_ls    = ":"
+zemba_minus_era5_color = "red9"
+zemba_minus_era5_lw    = 1.
+zemba_minus_era5_ls    = ":"
 
 legend_fs = 7.
-
 
 # formating
 #----------
@@ -160,12 +138,9 @@ shape = [
 # figure and axes
 fig, axs = pplt.subplots(shape, figsize = (8,4), sharey = False, sharex = False, grid = False)
 
-
 # fonts
-axs.format(ticklabelsize=7, ticklabelweight='normal', 
-           ylabelsize=8, ylabelweight='normal',
-            xlabelsize=8, xlabelweight='normal', 
-            titlesize=8, titleweight='normal',)
+axs.format(ticklabelsize=7, ticklabelweight='normal', ylabelsize=8, ylabelweight='normal',
+           xlabelsize=8, xlabelweight='normal', titlesize=8, titleweight='normal',)
 
 # x-axis
 locatorx      = np.arange(-90, 120, 30)
@@ -186,7 +161,7 @@ for i in np.arange(0,1):
     axs[i].xaxis.set_ticks_position('none')
     axs[i].xaxis.set_tick_params(labelbottom=False)
 
-# format top left subplot
+# format top right subplot
 for i in np.arange(1,2):
     
     # y-axis
@@ -219,88 +194,66 @@ axs[1].format(title = r'(b) Evaporation (mm/day)', titleloc = 'left')
 axs[2].format(title = r'(b) Difference in Precipitation and Snowfall (mm/day)', titleloc = 'left')
 axs[3].format(title = r'(d) Difference in Evaporation (mm/day)', titleloc = 'left')
 
-
-
 # plot precipitation
 #-------------------
-
-# lines
-ebm_precip_line = axs[0].plot(Var["lat"], ebm_precip, color = ebm_color, lw = ebm_lw, linestyle = ebm_ls)
+zemba_precip_line = axs[0].plot(Var["lat"], zemba_precip, color = zemba_color, lw = zemba_lw, linestyle = zemba_ls)
 noresm2_precip_line = axs[0].plot(Var["lat"], noresm2_precip, color = noresm2_color, lw = noresm2_lw, linestyle = noresm2_ls)
 era5_precip_line = axs[0].plot(Var["lat"], era5_precip, color = era5_color, lw = era5_lw, linestyle = era5_ls)
-
-ebm_sf_line = axs[0].plot(Var["lat"], ebm_sf, color = ebm_color, lw = ebm_lw, linestyle = ":", label = ["EBCM"])
-noresm2_sf_line = axs[0].plot(Var["lat"], noresm2_sf, color = noresm2_color, lw = noresm2_lw, linestyle = ":", label = ["noresm"])
-era5_sf_line = axs[0].plot(Var["lat"], era5_sf, color = era5_color, lw = era5_lw, linestyle = ":", label = ["ERA5 (1940-1970)"])
-
-# legend
-axs[0].legend(handles = [ebm_precip_line, noresm2_precip_line, era5_precip_line],
+axs[0].legend(handles = [zemba_precip_line, noresm2_precip_line, era5_precip_line],
               labels  = ["ZEMBA (Precipitation)", "NorESM2 (Precipitation)", "ERA5 (Precipitation)"], frameon = False, loc = "ul",
               bbox_to_anchor=(0.05, 0.9), ncols = 1, prop={'size':legend_fs})
 
-# legend
-axs[0].legend(handles = [ebm_sf_line, noresm2_sf_line, era5_sf_line],
-              labels  = ["ZEMBA (Snowfall)", "NorESM2 (Snowfall)", "ERA5 (Snowfall)"], frameon = False, loc = "ur",
-              bbox_to_anchor=(0.95, 0.9), ncols = 1, prop={'size':legend_fs})
-
-
 # plot differences in precipitation
-#----------------------------------
-
-
-# lines
-ebm_minus_noresm_precip = axs[2].plot(Var["lat"], ebm_precip - noresm2_precip, color = ebm_minus_noresm2_color, lw = ebm_minus_noresm2_lw, linestyle = "-")
-ebm_minus_era5_precip   = axs[2].plot(Var["lat"], ebm_precip - era5_precip, color = ebm_minus_era5_color, lw = ebm_minus_era5_lw, linestyle = "-")
-
-ebm_minus_noresm_sf = axs[2].plot(Var["lat"], ebm_sf - noresm2_sf, color = ebm_minus_noresm2_color, lw = ebm_minus_noresm2_lw, linestyle = ":")
-ebm_minus_era5_sf   = axs[2].plot(Var["lat"], ebm_sf - era5_sf, color = ebm_minus_era5_color, lw = ebm_minus_era5_lw, linestyle = ":")
-
-# legend
-axs[2].legend(handles = [ebm_minus_noresm_precip, ebm_minus_era5_precip],
+zemba_minus_noresm_precip = axs[2].plot(Var["lat"], zemba_precip - noresm2_precip, color = zemba_minus_noresm2_color, lw = zemba_minus_noresm2_lw, linestyle = "-")
+zemba_minus_era5_precip   = axs[2].plot(Var["lat"], zemba_precip - era5_precip, color = zemba_minus_era5_color, lw = zemba_minus_era5_lw, linestyle = "-")
+axs[2].legend(handles = [zemba_minus_noresm_precip, zemba_minus_era5_precip],
               labels  = ["ZEMBA − NorESM2 (Precipitation)", "ZEMBA − ERA5 (Precipitation) "], frameon = False,  loc = "ll",
                bbox_to_anchor=(0.01, 0.01), ncols = 1, prop={'size':legend_fs})
 
-axs[2].legend(handles = [ebm_minus_noresm_sf, ebm_minus_era5_sf],
+
+
+# plot snowfall
+#--------------
+zemba_sf_line = axs[0].plot(Var["lat"], zemba_sf, color = zemba_color, lw = zemba_lw, linestyle = ":", label = ["EBCM"])
+noresm2_sf_line = axs[0].plot(Var["lat"], noresm2_sf, color = noresm2_color, lw = noresm2_lw, linestyle = ":", label = ["noresm"])
+era5_sf_line = axs[0].plot(Var["lat"], era5_sf, color = era5_color, lw = era5_lw, linestyle = ":", label = ["ERA5 (1940-1970)"])
+axs[0].legend(handles = [zemba_sf_line, noresm2_sf_line, era5_sf_line],
+              labels  = ["ZEMBA (Snowfall)", "NorESM2 (Snowfall)", "ERA5 (Snowfall)"], frameon = False, loc = "ur",
+              bbox_to_anchor=(0.95, 0.9), ncols = 1, prop={'size':legend_fs})
+
+# plot differences in snowfall
+zemba_minus_noresm_sf = axs[2].plot(Var["lat"], zemba_sf - noresm2_sf, color = zemba_minus_noresm2_color, lw = zemba_minus_noresm2_lw, linestyle = ":")
+zemba_minus_era5_sf   = axs[2].plot(Var["lat"], zemba_sf - era5_sf, color = zemba_minus_era5_color, lw = zemba_minus_era5_lw, linestyle = ":")
+axs[2].legend(handles = [zemba_minus_noresm_sf, zemba_minus_era5_sf],
               labels  = ["ZEMBA − NorESM2 (Snowfall)", "ZEMBA − ERA5 (Snowfall)"], frameon = False,  loc = "ur",
                bbox_to_anchor=(0.98, 0.97), ncols = 1, prop={'size':legend_fs})
 
 # plot evaporation
 #------------------
-
-# lines
-ebm_evap_line = axs[1].plot(Var["lat"], ebm_evap, color = ebm_color, lw = ebm_lw, linestyle = ebm_ls, label = ["EBCM"])
+zemba_evap_line = axs[1].plot(Var["lat"], zemba_evap, color = zemba_color, lw = zemba_lw, linestyle = zemba_ls, label = ["EBCM"])
 noresm2_evap_line = axs[1].plot(Var["lat"], noresm2_evap, color = noresm2_color, lw = noresm2_lw, linestyle = noresm2_ls, label = ["noresm"])
 era5_evap_line = axs[1].plot(Var["lat"], era5_evap, color = era5_color, lw = era5_lw, linestyle = era5_ls, label = ["ERA5 (1940-1970)"])
-
-# legend
-axs[1].legend(handles = [ebm_evap_line, noresm2_evap_line, era5_evap_line],
+axs[1].legend(handles = [zemba_evap_line, noresm2_evap_line, era5_evap_line],
               labels  = ["ZEMBA", "NorESM2", "ERA5"], frameon = False, loc = "uc",
               bbox_to_anchor=(0.3, 0.9), ncols = 1, prop={'size':legend_fs})
 
 # plot differences in evaporation
-#--------------------------------
-
-# lines
-ebm_minus_noresm_evap = axs[3].plot(Var["lat"], ebm_evap - noresm2_evap, color = ebm_minus_noresm2_color, lw = ebm_minus_noresm2_lw, linestyle = "-")
-ebm_minus_era5_evap = axs[3].plot(Var["lat"], ebm_evap - era5_evap, color = ebm_minus_era5_color, lw = ebm_minus_era5_lw, linestyle = "-")
-
-# legend
-axs[3].legend(handles = [ebm_minus_noresm_evap, ebm_minus_era5_evap],
+zemba_minus_noresm_evap = axs[3].plot(Var["lat"], zemba_evap - noresm2_evap, color = zemba_minus_noresm2_color, lw = zemba_minus_noresm2_lw, linestyle = "-")
+zemba_minus_era5_evap = axs[3].plot(Var["lat"], zemba_evap - era5_evap, color = zemba_minus_era5_color, lw = zemba_minus_era5_lw, linestyle = "-")
+axs[3].legend(handles = [zemba_minus_noresm_evap, zemba_minus_era5_evap],
               labels  = ["ZEMBA − NorESM2", "ZEMBA − ERA5"], frameon = False,  loc = "lc",
                bbox_to_anchor=(0.5, 0.05), ncols = 1, prop={'size':legend_fs})
 
             
-fig.save(os.getcwd()+"/output/plots/f03.png", dpi = 400)
-fig.save(os.getcwd()+"/output/plots/f03.pdf", dpi = 400)
-
-
+fig.save(os.getcwd()+"/output/plots/f03.png", dpi= 300)
+fig.save(os.getcwd()+"/output/plots/f03.pdf", dpi= 300)
 
 
 print('###########################')
 print("Global Mean Precipitation....")
 print('###########################')
 
-print("pyEBM: " + str(round(ebm_precip_global, 2)))
+print("Zemba: " + str(round(zemba_precip_global, 2)))
 
 print("NorESM2: " + str(round(noresm2_precip_global, 2)))
 
@@ -310,7 +263,7 @@ print('###########################')
 print("Global Mean Evaporation....")
 print('###########################')
 
-print("pyEBM: " + str(round(ebm_evap_global, 2)))
+print("Zemba: " + str(round(zemba_evap_global, 2)))
 
 print("NorESM2: " + str(round(noresm2_evap_global, 2)))
 
@@ -320,7 +273,7 @@ print('###########################')
 print("Global Mean Snowfall....")
 print('###########################')
 
-print("pyEBM: " + str(round(ebm_sf_global, 2)))
+print("pyzemba: " + str(round(zemba_sf_global, 2)))
 
 print("NorESM2: " + str(round(noresm2_sf_global, 2)))
 

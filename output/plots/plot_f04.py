@@ -1,65 +1,47 @@
 # -*- coding: utf-8 -*-
 """
-Plot Figure 4 (Pre-Industrial - Albedo)
+plot figure 4 - results section - pre-industrial albedo
 
 @author: Daniel Gunning 
 """
 
 import numpy as np
 import proplot as pplt
-from matplotlib.font_manager import FontProperties
 import os
 import pickle
 import xarray as xr
 
+# paths
 output_path  = os.path.dirname(os.getcwd())
 script_path  = os.path.dirname(output_path)
 input_path   = script_path + '/input'
 
-# change directory
 os.chdir(script_path)
-
 from utilities import *
 
-#---------
-# EBM data
-#---------
-
-# load pre-industrial results
-#----------------------------
+#------------------------------
+# load zemba pre-industrial sim
+#------------------------------
 
 # load data
 with open('output/equilibrium/pi_moist_res5.0.pkl', 'rb') as f:
-    pi_dict = pickle.load(f)
-pi  = pi_dict['StateYear']
-Var = pi_dict['Var']
-INPUT = pi_dict['Input']
+    pi_data = pickle.load(f)
     
-ebm = {}
-noresm = {}
-era5 = {}
+pi    = pi_data['StateYear']
+Var   = pi_data['Var']
+INPUT = pi_data['Input']
+ 
+# TOA albedo
+zemba_alpha_toa        = pi["rsut"].mean(axis=1)/pi["I"].mean(axis=1)
+zemba_alpha_toa_global = round(global_pymean(zemba_alpha_toa, Var), 2)
 
-# annual and zonal mean
-#----------------------
+# BOA albedo
+zemba_alpha_boa        = pi["rsus"].mean(axis=1)/pi["rsds"].mean(axis=1) 
+zemba_alpha_boa_global = round(global_pymean(zemba_alpha_boa, Var), 2)
 
-# average
-ebm["alpha_toa"] = pi["rsut"].mean(axis=1)/pi["I"].mean(axis=1)    # planetary
-ebm["alpha_toa_global"] = round(global_pymean(ebm["alpha_toa"], Var), 2)
-
-ebm["alpha_boa"] = pi["rsus"].mean(axis=1)/pi["rsds"].mean(axis=1) # surface
-ebm["alpha_boa_global"] = round(global_pymean(ebm["alpha_boa"], Var), 2)
-
-# land
-ebm["alpha_toa_land"] = pi["rsut_land"].mean(axis=1)/pi["I"].mean(axis=1) # planetary
-ebm["alpha_boa_land"] = pi["rsus_land"].mean(axis=1)/pi["rsds_land"].mean(axis=1) # surface
-
-# ocean
-ebm["alpha_toa_ocean"] = pi["rsut_ocean"].mean(axis=1)/pi["I"].mean(axis=1) # planetary
-ebm["alpha_boa_ocean"] = pi["rsus_ocean"].mean(axis=1)/pi["rsds_ocean"].mean(axis=1) # surface
-
-#-----------------
-# Add NorESM2 data
-#-----------------
+#-----------------------------------
+# load pre-industrial NorESM2 output
+#-----------------------------------
 
 # load annual data
 noresm2_lat     = np.loadtxt(script_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=0)
@@ -107,16 +89,16 @@ era5_alphas = era5_rsus / era5_rsds
 era5_alphat_global = global_mean2(era5_alphat, Var["lat"], Var["dlat"])
 era5_alphas_global = global_mean2(era5_alphas, Var["lat"], Var["dlat"])
 
-#--------------
-# Plot figure 3 -- v1
-#--------------
+#---------
+# plotting
+#---------
 
 # constants
 #----------
 
-ebm_color = "black"
-ebm_lw    = 1.
-ebm_ls    = "-"
+zemba_color = "black"
+zemba_lw    = 1.
+zemba_ls    = "-"
 
 noresm_color = "blue9"
 noresm_lw    = 1.
@@ -126,17 +108,16 @@ era5_color = "red9"
 era5_lw    = 1.
 era5_ls    = "-"
 
-ebm_minus_noresm_color = "blue9"
-ebm_minus_noresm_lw    = 1.
-ebm_minus_noresm_ls    = "-."
+zemba_minus_noresm_color = "blue9"
+zemba_minus_noresm_lw    = 1.
+zemba_minus_noresm_ls    = "-."
 
-ebm_minus_era5_color = "red9"
-ebm_minus_era5_lw    = 1.
-ebm_minus_era5_ls    = "-."
+zemba_minus_era5_color = "red9"
+zemba_minus_era5_lw    = 1.
+zemba_minus_era5_ls    = "-."
 
 legend_fs = 7.
 legend_fns = "bold"
-
 
 # formating
 #----------
@@ -153,18 +134,12 @@ shape = [
 # figure and axes
 fig, axs = pplt.subplots(shape, figsize = (8,4), sharey = False, sharex = False, grid = False)
 
-
 # fonts
-axs.format(ticklabelsize=7, ticklabelweight='normal', 
-           ylabelsize=8, ylabelweight='normal',
-            xlabelsize=8, xlabelweight='normal', 
-            titlesize=8, titleweight='normal',)
+axs.format(ticklabelsize=7, ticklabelweight='normal', ylabelsize=8, ylabelweight='normal',
+            xlabelsize=8, xlabelweight='normal', titlesize=8, titleweight='normal',)
 
 # x-axis
-axs.format(xlim = (-90, 90),
-           xlocator = np.arange(-90, 120, 30),
-           xminorlocator = np.arange(-90, 100, 10),)
-
+axs.format(xlim = (-90, 90), xlocator = np.arange(-90, 120, 30), xminorlocator = np.arange(-90, 100, 10),)
 
 # format top subplots
 for i in np.arange(0,1+1):
@@ -202,57 +177,53 @@ axs[3].format(title = r'(d) Difference in Surface Albedo', titleloc = "left")
 # plot planetary albedo
 #----------------------
 
-# lines
-ebm_toa_line    = axs[0].plot(Var["lat"], ebm["alpha_toa"], color = ebm_color, lw = ebm_lw, linestyle = ebm_ls)
+zemba_toa_line    = axs[0].plot(Var["lat"], zemba_alpha_toa, color = zemba_color, lw = zemba_lw, linestyle = zemba_ls)
 noresm_toa_line = axs[0].plot(Var["lat"], noresm2_alphat, color = noresm_color, lw = noresm_lw, linestyle = noresm_ls)
 era5_toa_line   = axs[0].plot(Var["lat"], era5_alphat, color = era5_color, lw = era5_lw, linestyle = era5_ls)
-
-# legend
-axs[0].legend(handles = [ebm_toa_line, noresm_toa_line, era5_toa_line],
+axs[0].legend(handles = [zemba_toa_line, noresm_toa_line, era5_toa_line],
               labels  = ["ZEMBA", "NorESM2", "ERA5"], frameon = False,
               loc = "c", bbox_to_anchor=(0.5, 0.7), ncols = 1, prop={'size':legend_fs})
 
 # plot difference in planetary albedo
-#------------------------------------
-
-# lines
-ebm_minus_noresm_toa_line = axs[2].plot(Var["lat"], ebm["alpha_toa"] - noresm2_alphat, color = ebm_minus_noresm_color, lw = ebm_minus_noresm_lw, linestyle = ebm_minus_noresm_ls)
-ebm_minus_era5_toa_line   = axs[2].plot(Var["lat"], ebm["alpha_toa"] - era5_alphat, color = ebm_minus_era5_color, lw = ebm_minus_era5_lw, linestyle = ebm_minus_era5_ls)
-
-# legend
-axs[2].legend(handles = [ebm_minus_noresm_toa_line, ebm_minus_era5_toa_line],
+zemba_minus_noresm_toa_line = axs[2].plot(Var["lat"], zemba_alpha_toa - noresm2_alphat, color = zemba_minus_noresm_color, lw = zemba_minus_noresm_lw, linestyle = zemba_minus_noresm_ls)
+zemba_minus_era5_toa_line   = axs[2].plot(Var["lat"], zemba_alpha_toa - era5_alphat, color = zemba_minus_era5_color, lw = zemba_minus_era5_lw, linestyle = zemba_minus_era5_ls)
+axs[2].legend(handles = [zemba_minus_noresm_toa_line, zemba_minus_era5_toa_line],
               labels  = ["ZEMBA - NorESM2", "ZEMBA - ERA5"],
               ncols = 2, loc = "uc", frameon = False, 
               bbox_to_anchor=(0.5, 0.2), prop={'size':legend_fs}) 
 
-
-
 # plot surface albedo
 #--------------------
 
-# lines
-ebm_boa_line    = axs[1].plot(Var["lat"], ebm["alpha_boa"], color = ebm_color, lw = ebm_lw, linestyle = ebm_ls, label = ["EBCM"])
+zemba_boa_line  = axs[1].plot(Var["lat"], zemba_alpha_boa, color = zemba_color, lw = zemba_lw, linestyle = zemba_ls, label = ["EBCM"])
 noresm_boa_line = axs[1].plot(Var["lat"], noresm2_alphas, color = noresm_color, lw = noresm_lw, linestyle = noresm_ls, label = ["noresm"])
 era5_boa_line   = axs[1].plot(Var["lat"], era5_alphas, color = era5_color, lw = era5_lw, linestyle = era5_ls, label = ["ERA5 (1940-1970)"])
-
-# legend
-axs[1].legend(handles = [ebm_boa_line, noresm_boa_line, era5_boa_line],
+axs[1].legend(handles = [zemba_boa_line, noresm_boa_line, era5_boa_line],
               labels  = ["ZEMBA", "NorESM2", "ERA5"], frameon = False,
               loc = "c", bbox_to_anchor=(0.5, 0.7), ncols = 1, prop={'size':legend_fs})
 
-
 # plot differences in surface albedo
-#-------------------------------------
-  
-# lines
-ebm_minus_noresm_boa_line = axs[3].plot(Var["lat"], ebm["alpha_boa"] - noresm2_alphas, color = ebm_minus_noresm_color, lw = ebm_minus_noresm_lw, linestyle = ebm_minus_noresm_ls)
-ebm_minus_era5_boa_line   = axs[3].plot(Var["lat"], ebm["alpha_boa"] - era5_alphas, color = ebm_minus_era5_color, lw = ebm_minus_era5_lw, linestyle = ebm_minus_era5_ls)
-
-axs[3].legend(handles = [ebm_minus_noresm_boa_line, ebm_minus_era5_boa_line],
+zemba_minus_noresm_boa_line = axs[3].plot(Var["lat"], zemba_alpha_boa - noresm2_alphas, color = zemba_minus_noresm_color, lw = zemba_minus_noresm_lw, linestyle = zemba_minus_noresm_ls)
+zemba_minus_era5_boa_line   = axs[3].plot(Var["lat"], zemba_alpha_boa - era5_alphas, color = zemba_minus_era5_color, lw = zemba_minus_era5_lw, linestyle = zemba_minus_era5_ls)
+axs[3].legend(handles = [zemba_minus_noresm_boa_line, zemba_minus_era5_boa_line],
               labels  = ["ZEMBA - NorESM2", "ZEMBA - ERA5"],
               ncols = 2, loc = "uc", frameon = False, 
               bbox_to_anchor=(0.5, 0.2), prop={'size': legend_fs}) 
 
+fig.save(os.getcwd() +"/output/plots/f04.png", dpi= 300)
+fig.save(os.getcwd() +"/output/plots/f04.pdf", dpi= 300)
 
-fig.save(os.getcwd() +"/output/plots/f04.png", dpi = 400)
-fig.save(os.getcwd() +"/output/plots/f04.pdf", dpi = 400)
+print('###########################')
+print("Planetary Albedo....")
+print('###########################')
+print("ZEMBA: " + str(zemba_alpha_toa_global))
+print("NorESM2: " + str(noresm2_alphat_global))
+print("ERA5: " + str(era5_alphat_global) +'\n')
+
+
+print('###########################')
+print("Surface Albedo....")
+print('###########################')
+print("ZEMBA: " + str(zemba_alpha_boa_global))
+print("NorESM2: " + str(noresm2_alphas_global))
+print("ERA5: " + str(era5_alphas_global)+'\n')

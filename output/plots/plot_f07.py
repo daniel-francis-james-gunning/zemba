@@ -1,108 +1,56 @@
 # -*- coding: utf-8 -*-
 """
-Plot Figure 7 (Pre-Industrial - Results - Transport)
+plot figure 7 - results sections - pre-industrial transport
 
 @author: Daniel Gunning 
 """
 
-
 import numpy as np
 import proplot as pplt
-from matplotlib.font_manager import FontProperties
 import os
 import pickle
 import xarray as xr
 
+# paths
 output_path  = os.path.dirname(os.getcwd())
 script_path  = os.path.dirname(output_path)
 input_path   = script_path + '/input'
 
-# change directory
 os.chdir(script_path)
-
 from utilities import *
 
-#---------
-# EBM data
-#---------
+#------------------------------
+# load zemba pre-industrial sim
+#------------------------------
 
-# load pre-industrial results
-#----------------------------
-
-# load data
 with open('output/equilibrium/pi_moist_res5.0.pkl', 'rb') as f:
-    pi_dict = pickle.load(f)
-pi  = pi_dict['StateYear']
-Var = pi_dict['Var']
-INPUT = pi_dict['Input']
+    pi_data = pickle.load(f)
     
-ebm = {}
-noresm = {}
-era5 = {}
-
-# annual and zonal mean
-#----------------------
-
-# moist static energy in atmosphere
-ebm_atm = np.nanmean(pi["mse_north"], axis = 1)/1e15
-ebm_atm_max_sh = -np.min(ebm_atm[0:int(Var["idxeq"])])
-ebm_atm_max_nh = np.max(ebm_atm[int(Var["idxeq"]):])
+pi    = pi_data['StateYear']
+Var   = pi_data['Var']
+INPUT = pi_data['Input']
 
 
-# dry static energy in atmosphere
-ebm_dse = np.nanmean(pi["dry_north"], axis = 1)/1e15
+# northward flux of moist static energy in the atmosphere
+zemba_atm = np.nanmean(pi["mse_north"], axis = 1)/1e15
+zemba_atm_max_sh = -np.min(zemba_atm[0:int(Var["idxeq"])])
+zemba_atm_max_nh = np.max(zemba_atm[int(Var["idxeq"]):])
 
-# latent energy in atmosphere
-ebm_latent = np.nanmean(pi["latent_north"], axis = 1)/1e15
+# northward flux of dry static energy in the atmosphere
+zemba_dse = np.nanmean(pi["dry_north"], axis = 1)/1e15
 
-# ocean heat transport
-ebm_ocean = np.nanmean(pi['advf'][0:Var['olatb'].size, :] + pi['advf'][Var['olatb'].size*5:Var['olatb'].size*6, :] + pi["hdiffs"][0:Var['olatb'].size, :], axis = 1)/1e15 
-ebm_ocean = np.concatenate((np.zeros((Var["idxnocs"].size)), ebm_ocean, np.zeros((Var["idxnocn"].size))))
+# northward flux of latent energy in the atmosphere
+zemba_latent = np.nanmean(pi["latent_north"], axis = 1)/1e15
 
-ebm_ocean_max_sh = -np.min(ebm_ocean[0:int(Var["idxeq"])])
-ebm_ocean_max_nh = np.max(ebm_ocean[int(Var["idxeq"]):])
+# northward flux of ocean heat
+zemba_ocean = np.nanmean(pi['advf'][0:Var['olatb'].size, :] + pi['advf'][Var['olatb'].size*5:Var['olatb'].size*6, :] + pi["hdiffs"][0:Var['olatb'].size, :], axis = 1)/1e15 
+zemba_ocean = np.concatenate((np.zeros((Var["idxnocs"].size)), zemba_ocean, np.zeros((Var["idxnocn"].size))))
+zemba_ocean_max_sh = -np.min(zemba_ocean[0:int(Var["idxeq"])])
+zemba_ocean_max_nh = np.max(zemba_ocean[int(Var["idxeq"]):])
 
-# jja mean
-#---------
-
-# moist static energy in atmosphere
-ebm_atm_jja = np.nanmean(pi["mse_north"][:,151:242+1], axis = 1)/1e15
-
-# dry static energy in atmosphere
-ebm_dse_jja = np.nanmean(pi["dry_north"][:,151:242+1], axis = 1)/1e15
-
-# latent energy in atmosphere
-ebm_latent_jja = np.nanmean(pi["latent_north"][:,151:242+1], axis = 1)/1e15
-
-# ocean heat transport
-ebm_ocean_jja         = np.nanmean(pi["advf"][0:Var['olatb'].size,151:242+1] + pi["advf"][Var['olatb'].size*5:Var['olatb'].size*6,151:242+1] + pi["hdiffs"][0:Var['olatb'].size:Var['olatb'].size,151:242+1], axis = 1)/1e15 
-ebm_ocean_jja_  = np.concatenate((np.zeros((Var["idxnocs"].size)), ebm_ocean_jja , np.zeros((Var["idxnocn"].size))))
-
-# djf mean
-#---------
-
-# moist static energy in atmosphere
-ebm_atm_djf = ((np.append(pi["mse_north"][:,0:58+1], pi["mse_north"][:,334:], axis = 1)).mean(axis=1))/1e15
-
-# dry static energy in atmosphere
-ebm_dse_djf = ((np.append(pi["dry_north"][:,0:58+1], pi["dry_north"][:,334:], axis = 1)).mean(axis=1))/1e15
-
-# moist static energy in atmosphere
-ebm_latent_djf = ((np.append(pi["latent_north"][:,0:58+1], pi["latent_north"][:,334:], axis = 1)).mean(axis=1))/1e15
-
-# ocean heat transport
-ebm_ocean_djf   = ((np.append(
-    
-                            pi["advf"][0:Var['olatb'].size,0:58+1] + pi["advf"][Var['olatb'].size*5:Var['olatb'].size*6,0:58+1] + pi["hdiffs"][0:Var['olatb'].size,0:58+1],
-                            
-                            pi["advf"][0:Var['olatb'].size,334:] + pi["advf"][Var['olatb'].size*5:Var['olatb'].size*6,334:] + pi["hdiffs"][0:Var['olatb'].size,334:], axis=1)).mean(axis=1))/1e15
-
-ebm_ocean_djf = np.concatenate((np.zeros((Var["idxnocs"].size)), ebm_ocean_djf, np.zeros((Var["idxnocn"].size))))
-    
-
-#----------------
-# Add NorSM2 data
-#----------------
+#-----------------------------------
+# load pre-industrial NorESM2 output
+#-----------------------------------
 
 def inferred_heat_transport(energy_in, lat):
     
@@ -130,7 +78,6 @@ def inferred_heat_transport(energy_in, lat):
     
     return result
 
-
 # load annual data
 noresm2_lat     = np.loadtxt(script_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=0)
 noresm2_pr      = np.loadtxt(script_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=2)
@@ -145,20 +92,6 @@ noresm2_rlds    = np.loadtxt(script_path+'/other_data/noresm2/noresm2_annual.txt
 noresm2_rlus    = np.loadtxt(script_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=11)
 noresm2_shf     = np.loadtxt(script_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=12)
 noresm2_lhf     = np.loadtxt(script_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=13)
-
-# interpolate data
-# noresm2_pr      = np.interp(Var['lat'], noresm2_lat, noresm2_pr)
-# noresm2_prsn    = np.interp(Var['lat'], noresm2_lat, noresm2_prsn)
-# noresm2_evap    = np.interp(Var['lat'], noresm2_lat, noresm2_evap)
-# noresm2_rsdt    = np.interp(Var['lat'], noresm2_lat, noresm2_rsdt)
-# noresm2_rsut    = np.interp(Var['lat'], noresm2_lat, noresm2_rsut)
-# noresm2_rsds    = np.interp(Var['lat'], noresm2_lat, noresm2_rsds)
-# noresm2_rsus    = np.interp(Var['lat'], noresm2_lat, noresm2_rsus)
-# noresm2_rlut    = np.interp(Var['lat'], noresm2_lat, noresm2_rlut)
-# noresm2_rlds    = np.interp(Var['lat'], noresm2_lat, noresm2_rlds)
-# noresm2_rlus    = np.interp(Var['lat'], noresm2_lat, noresm2_rlus)
-# noresm2_shf     = np.interp(Var['lat'], noresm2_lat, noresm2_shf)
-# noresm2_lhf     = np.interp(Var['lat'], noresm2_lat, noresm2_lhf)
 
 # net radiation at TOA
 rtnet_noresm2 = (noresm2_rsdt - noresm2_rsut) - noresm2_rlut
@@ -211,24 +144,22 @@ noresm2_latent = inferred_heat_transport(Flatent_noresm2, noresm2_lat)
 # dry static transport in atmosphereas residual
 noresm2_dse = noresm2_atm - noresm2_latent 
 
-
-noresm2_ocean_max_sh = -np.min(noresm2_ocean[0:int(Var["idxeq"])])
-noresm2_ocean_max_nh = np.max(noresm2_ocean[int(Var["idxeq"]):])
-
-noresm2_atm_max_sh = -np.min(noresm2_atm[0:int(Var["idxeq"])])
-noresm2_atm_max_nh = np.max(noresm2_atm[int(Var["idxeq"]):])
-
+# maximum and minimum fluxes
+noresm2_ocean_max_sh = -np.min(noresm2_ocean[0:int(noresm2_lat.size/2)])
+noresm2_ocean_max_nh = np.max(noresm2_ocean[int(noresm2_lat.size/2):])
+noresm2_atm_max_sh   = -np.min(noresm2_atm[0:int(noresm2_lat.size/2)])
+noresm2_atm_max_nh   = np.max(noresm2_atm[int(noresm2_lat.size/2):])
 
 #---------
-# Plotting
+# plotting
 #---------
 
 # constants
 #----------
 
-ebm_color = "black"
-ebm_lw    = 1
-ebm_ls    = "-"
+zemba_color = "black"
+zemba_lw    = 1
+zemba_ls    = "-"
 
 noresm_color = "blue9"
 noresm_lw    = 1
@@ -252,10 +183,8 @@ fig, axs = pplt.subplots(shape, figsize = (10,3), sharey = False, sharex = False
 
 
 # fonts
-axs.format(ticklabelsize=7, ticklabelweight='normal', 
-           ylabelsize=8, ylabelweight='normal',
-            xlabelsize=8, xlabelweight='normal', 
-            titlesize=8, titleweight='normal',)
+axs.format(ticklabelsize=7, ticklabelweight='normal', ylabelsize=8, ylabelweight='normal',
+            xlabelsize=8, xlabelweight='normal', titlesize=8, titleweight='normal',)
 
 # x-axis
 locatorx      = np.arange(-90, 120, 30)
@@ -269,11 +198,9 @@ for i in np.arange(0,1):
     # y-axis
     axs[i].format(ylim = (-6, 6), yminorlocator=np.arange(-6, 6+1, 1), ylocator = np.arange(-6, 6+2, 2))
     
-    
     # hline
     axs[i].axhline(0, Var["lat"].min(), Var["lat"].max(), color = "black", lw = 0.2, linestyle ="--")
-    
-    
+      
 # format middle plot
 for i in np.arange(1,2):
     
@@ -283,7 +210,6 @@ for i in np.arange(1,2):
     
     # hline
     axs[i].axhline(0, Var["lat"].min(), Var["lat"].max(), color = "black", lw = 0.2, linestyle ="--")
-    
     
 # format right plot
 for i in np.arange(2,3):
@@ -295,23 +221,19 @@ for i in np.arange(2,3):
     # hline
     axs[i].axhline(0, Var["lat"].min(), Var["lat"].max(), color = "black", lw = 0.2, linestyle ="--")
     
-
 # titles
 axs[0].format(title = r'(a) Total Heat Transport (PW)', titleloc = 'left')
 axs[1].format(title = r'(b) Atmospheric and Ocean Heat Transport (PW)', titleloc = 'left')
 axs[2].format(title = r'(c) Dry Static and Latent Heat Transport (PW)', titleloc = 'left')
 
-
-
 # plot total heat transport
 #--------------------------
 
-# lines
-ebm_total_line    = axs[0].plot(Var["latb"], ebm_atm + ebm_ocean, color = ebm_color, lw = ebm_lw, ls = ebm_ls)
+zemba_total_line    = axs[0].plot(Var["latb"], zemba_atm + zemba_ocean, color = zemba_color, lw = zemba_lw, ls = zemba_ls)
 noresm_total_line = axs[0].plot(noresm2_lat, noresm2_total, color = noresm_color, lw = noresm_lw, ls = noresm_ls)
 
 # legend
-axs[0].legend(handles = [ebm_total_line, noresm_total_line],
+axs[0].legend(handles = [zemba_total_line, noresm_total_line],
               labels  = ["ZEMBA", "NorESM2"], 
                           frameon = False, loc = "ul", bbox_to_anchor=(0.2, 0.9), 
                           ncols = 1, prop={'size':legend_fs})
@@ -320,20 +242,19 @@ axs[0].legend(handles = [ebm_total_line, noresm_total_line],
 # plot atmospheric + ocean
 #-------------------------
 
-# lines
-ebm_atm_line = axs[1].plot(Var["latb"], ebm_atm, color = ebm_color, lw = ebm_lw, ls = ebm_ls)
+zemba_atm_line = axs[1].plot(Var["latb"], zemba_atm, color = zemba_color, lw = zemba_lw, ls = zemba_ls)
 noresm_atm_line = axs[1].plot(noresm2_lat, noresm2_atm, color = noresm_color, lw = noresm_lw, ls = noresm_ls)
-ebm_ocean_line = axs[1].plot(Var["latb"], ebm_ocean, color = ebm_color, lw = ebm_lw, ls = ":")
+zemba_ocean_line = axs[1].plot(Var["latb"], zemba_ocean, color = zemba_color, lw = zemba_lw, ls = ":")
 noresm_ocean_line = axs[1].plot(noresm2_lat, noresm2_ocean, color = noresm_color, lw = noresm_lw, ls = ":")
 
 # legend
-axs[1].legend(handles = [ebm_atm_line, noresm_atm_line],
+axs[1].legend(handles = [zemba_atm_line, noresm_atm_line],
               labels  = ["ZEMBA (Atmosphere)", "NorESM2 (Atmosphere)"], 
                           frameon = False, loc = "ul", bbox_to_anchor=(0.1, 0.9), 
                           ncols = 1, prop={'size':legend_fs})
 
 # legend
-axs[1].legend(handles = [ebm_ocean_line, noresm_ocean_line],
+axs[1].legend(handles = [zemba_ocean_line, noresm_ocean_line],
               labels  = ["ZEMBA (Ocean)", "NorESM2 (Ocean)"], 
                           frameon = False, loc = "lr", bbox_to_anchor=(0.9, 0.2), 
                           ncols = 1, prop={'size':legend_fs})
@@ -341,34 +262,33 @@ axs[1].legend(handles = [ebm_ocean_line, noresm_ocean_line],
 # plot atmospheric partition
 #---------------------------
 
-# lines
-ebm_dse_line       = axs[2].plot(Var["latb"], ebm_dse, color = ebm_color, lw = ebm_lw, ls = ebm_ls)
+zemba_dse_line       = axs[2].plot(Var["latb"], zemba_dse, color = zemba_color, lw = zemba_lw, ls = zemba_ls)
 noresm_dse_line    = axs[2].plot(noresm2_lat, noresm2_dse, color = noresm_color, lw = noresm_lw, ls = noresm_ls)
-ebm_latent_line    = axs[2].plot(Var["latb"], ebm_latent, color = ebm_color, lw = ebm_lw, ls = ":", alpha = 0.5)
+zemba_latent_line    = axs[2].plot(Var["latb"], zemba_latent, color = zemba_color, lw = zemba_lw, ls = ":", alpha = 0.5)
 noresm_latent_line = axs[2].plot(noresm2_lat, noresm2_latent, color = noresm_color, lw = noresm_lw, ls = ":", alpha = 0.5)
 
 # legend
-axs[2].legend(handles = [ebm_dse_line, noresm_dse_line],
+axs[2].legend(handles = [zemba_dse_line, noresm_dse_line],
               labels  = ["ZEMBA (Dry Static)", "NorESM2 (Dry Static)"], 
                           frameon = False, loc = "ul", bbox_to_anchor=(0.2, 0.9), 
                           ncols = 1, prop={'size':legend_fs})
 
 # legend
-axs[2].legend(handles = [ebm_latent_line, noresm_latent_line,],
+axs[2].legend(handles = [zemba_latent_line, noresm_latent_line,],
               labels  = ["ZEMBA (Latent)","NorESM2 (Latent)"], 
                           frameon = False, loc = "lr", bbox_to_anchor=(0.9, 0.15), 
                           ncols = 1, prop={'size':legend_fs})
 
 # save figure
-fig.save(os.getcwd()+"/output/plots/f07.png", dpi = 400)
-fig.save(os.getcwd()+"/output/plots/f07.pdf", dpi = 400)
+fig.save(os.getcwd()+"/output/plots/f07.png", dpi= 300)
+fig.save(os.getcwd()+"/output/plots/f07.pdf", dpi= 300)
 
 print('###########################')
 print("Peak Atmospheric Heat Transport....")
 print('###########################')
 
-print("pyEBM (SH): " + str(round(ebm_atm_max_sh, 2)))
-print("pyEBM (NH): " + str(round(ebm_atm_max_nh, 2)))
+print("pyzemba (SH): " + str(round(zemba_atm_max_sh, 2)))
+print("pyzemba (NH): " + str(round(zemba_atm_max_nh, 2)))
 
 print("NorESM2 (SH): " + str(round(noresm2_atm_max_sh, 2)))
 print("NorESM2 (NH): " + str(round(noresm2_atm_max_nh, 2))+'\n')
@@ -380,8 +300,8 @@ print('###########################')
 print("Peak Ocean Heat Transport....")
 print('###########################')
 
-print("pyEBM (SH): " + str(round(ebm_ocean_max_sh, 2)))
-print("pyEBM (NH): " + str(round(ebm_ocean_max_nh, 2)))
+print("pyzemba (SH): " + str(round(zemba_ocean_max_sh, 2)))
+print("pyzemba (NH): " + str(round(zemba_ocean_max_nh, 2)))
 
 print("NorESM2 (SH): " + str(round(noresm2_ocean_max_sh, 2)))
 print("NorESM2 (NH): " + str(round(noresm2_ocean_max_nh, 2))+'\n')

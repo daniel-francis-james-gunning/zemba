@@ -219,11 +219,3 @@ def spatial_average(data, xlatitude, xlatitude_spacing, fraction):
     return np.array(zones)
     
     
-
-
-
-
-
-
-
-    

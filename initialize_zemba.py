@@ -221,32 +221,6 @@ def get_constants(INPUT):
     idx = np.where(Var["latb"] == 0.)
     Var["idxeq"] = np.asarray(idx[0], dtype = 'f8')
 
-    #----------------------
-    # Ice model dimensions.
-    #----------------------
-
-    # northern hemisphere
-    #--------------------
-    
-    # latitude at grid centres
-    Var["ilatnh"] = np.arange(30.5, 89.5+1., 1.)
-    
-    # latitude at grid boundaries
-    Var["ilatbnh"] = np.arange(30., 90.+1., 1.)
-    
-    # southern hemisphere
-    #--------------------
-    
-    # latitude at grid centres
-    Var["ilatsh"] = np.arange(-89.5, -65.5+1., 1.)
-    
-    # latitude at grid boundaries
-    Var["ilatbsh"] = np.arange(-90., -65.+1., 1.)
-    
-    # ice model grid spacing
-    #-----------------------
-    Var["ilatdx"] = np.array([np.deg2rad(1.)*Var["r_earth"][0]])
-
     #------------------------
     # ocean model dimensions.
     #------------------------
@@ -930,7 +904,6 @@ def initialize_state(Var, INPUT):
     #------------------
     
     State['Tl'] = np.zeros((Var["lat"].size)) + (np.sin(np.linspace(0, np.pi, Var["lat"].size))*30)+273 
-         
     State["Tl"][np.asarray(Var["idxao"], dtype = "int")] = np.NaN
     
     # ocean temperature
@@ -939,9 +912,7 @@ def initialize_state(Var, INPUT):
     # [ocean model composed of six layers. Initialize temperatures for each.]
     
     # LAYER 1
-    
     To1 = np.zeros((Var["lat"].size)) + (np.sin(np.linspace(0, np.pi, Var["lat"].size))*30)+273 
-    
     To1[To1 < Var["Ksi"]] = Var["Ksi"]                    # no freezing ocean.
     To1[np.asarray(Var["idxal"], dtype = "int")] = np.NaN # no ocean in South
 
@@ -977,7 +948,6 @@ def initialize_state(Var, INPUT):
     #----------------------------------------------------------
     
     State['Tos'] =  np.zeros((Var["lat"].size)) + (np.sin(np.linspace(0, np.pi, Var["lat"].size))*30)+273 
-   
     State["Tos"][np.asarray(Var["idxal"], dtype = "int")] = np.NaN # no ocean in South
     
     # Mean ocean temperature
@@ -993,11 +963,6 @@ def initialize_state(Var, INPUT):
     
     # Temperature of sea-ice
     State["Tsi"] = np.zeros((Var["lat"].size)) + 273
-    
-    # Set to below freezing according to surface ocean temperature from NorESM
-    
-
-    
     i = np.where(State["Tos"] < Var["Ksi"])
     State["Tsi"][i[0]] = State["Tos"][i[0]]
     
@@ -1005,8 +970,8 @@ def initialize_state(Var, INPUT):
     State["Tsi"][np.asarray(Var["idxal"], dtype = "int")] = np.NaN # no ocean in South
     
     
-    # Lapse rate modified temperature
-    #--------------------------------
+    # Lapse rate modified temperatures
+    #---------------------------------
     
     State['Tax']  = State['Ta'].copy()
     State['Talx'] = State['Ta'].copy()
