@@ -2,8 +2,7 @@
 """
 @author: Daniel Gunning (University of Bergen)
 
-Example template for constructing an input file for an equillibrium run of ZEMBA. 
-Settings are kept to the standard pre-industrial run for the moist EBM version of ZEMBA.
+Pre-industrial input file...
 
 <-----------------------------HERE = parameters/settings that can be changed
 
@@ -20,7 +19,7 @@ import pandas as pd
 import pickle
 
 # NAME OF RUN.
-name = 'template'
+name = 'equili_pi'
 
 # PATH
 path = os.getcwd()   # MIGHT NEED TO CHANGE PATHS TO ACCESS *OTHER DATA* FOLDER

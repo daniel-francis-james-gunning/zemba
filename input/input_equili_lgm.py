@@ -2,8 +2,7 @@
 """
 @author: Daniel Gunning (University of Bergen)
 
-Example template for constructing an input file for an equillibrium run of ZEMBA. 
-Settings are kept to the standard pre-industrial run for the moist EBM version of ZEMBA.
+LGM input file...
 
 <-----------------------------HERE = parameters/settings that can be changed
 
@@ -20,7 +19,7 @@ import pandas as pd
 import pickle
 
 # NAME OF RUN.
-name = 'template'
+name = 'equili_lgm'
 
 # PATH
 path = os.getcwd()   # MIGHT NEED TO CHANGE PATHS TO ACCESS *OTHER DATA* FOLDER
@@ -96,7 +95,7 @@ input_zemba = Dict.empty(key_type=types.unicode_type, value_type=types.float64[:
 
 input_zemba['nyrs']=np.array([3000.]) # no. of model years...            # <-------------------- HERE
 input_zemba['occ']=np.array([-5.])    # mid-point of ocean circulation...# <-------------------- HERE
-input_zemba['ikyr']=np.array([0.])    # kyr BP for orbital parameters    # <-------------------- HERE
+input_zemba['ikyr']=np.array([21.])    # kyr BP for orbital parameters    # <-------------------- HERE
 
 # Resolution [in degrees of latitude]
 #-----------
@@ -219,7 +218,7 @@ if input_zemba['res'] == 1.:
 if input_zemba['res'] == 2.5:
     input_zemba['land_fraction'][-4:] = 0.      
 if input_zemba['res'] == 5.:
-    input_zemba['land_fraction'][-2:]   = 0. 
+    input_zemba['land_fraction'][-2:] = 0. 
     
 # Aqua planet (no land.)
 # input_zemba['land_fraction'] = np.zeros((lat.size))
@@ -234,14 +233,14 @@ input_zemba["land_fraction_bounds"] = np.interp(latb, lat, input_zemba["land_fra
 #-------------------
 
 # Present-day from ICE6G_C dataset (Argus et al., 2014; Peltier et al., 2014)
-ice6g_lat   = pd.read_csv(path+'/other_data/ice6g/ice6g.txt', skiprows=7, usecols=[0], sep='\t').to_numpy()[:,0]
-ice6g_orog  = pd.read_csv(path+'/other_data/ice6g/ice6g.txt', skiprows=7, usecols=[3], sep='\t').to_numpy()[:,0]
-input_zemba['land_height'] = np.interp(lat, ice6g_lat, ice6g_orog)
+# ice6g_lat   = pd.read_csv(path+'/other_data/ice6g/ice6g.txt', skiprows=7, usecols=[0], sep='\t').to_numpy()[:,0]
+# ice6g_orog  = pd.read_csv(path+'/other_data/ice6g/ice6g.txt', skiprows=7, usecols=[3], sep='\t').to_numpy()[:,0]
+# input_zemba['land_height'] = np.interp(lat, ice6g_lat, ice6g_orog)
 
 # LGM from ICE6G_C dataset (Argus et al., 2014; Peltier et al., 2014)
-# ice6g_lat   = pd.read_csv(path+'/other_data/ice6g/ice6g.txt', skiprows=7, usecols=[0], sep='\t').to_numpy()[:,0]
-# ice6g_orog  = pd.read_csv(path+'/other_data/ice6g/ice6g.txt', skiprows=7, usecols=[4], sep='\t').to_numpy()[:,0]
-# input_zemba['land_height'] = np.interp(lat, ice6g_lat, ice6g_orog)
+ice6g_lat   = pd.read_csv(path+'/other_data/ice6g/ice6g.txt', skiprows=7, usecols=[0], sep='\t').to_numpy()[:,0]
+ice6g_orog  = pd.read_csv(path+'/other_data/ice6g/ice6g.txt', skiprows=7, usecols=[4], sep='\t').to_numpy()[:,0]
+input_zemba['land_height'] = np.interp(lat, ice6g_lat, ice6g_orog)
 
 # Flat.
 # input_zemba['land_height'] = np.zeros(( lat.size ))
@@ -250,14 +249,14 @@ input_zemba['land_height'] = np.interp(lat, ice6g_lat, ice6g_orog)
 #--------------
 
 # Present-day from ICE6G_C dataset (Argus et al., 2014; Peltier et al., 2014)
-ice6g_lat = pd.read_csv(path+'/other_data/ice6g/ice6g.txt', skiprows=7, usecols=[0], sep='\t').to_numpy()[:,0]
-ice6g_if  = pd.read_csv(path+'/other_data/ice6g/ice6g.txt', skiprows=7, usecols=[5], sep='\t').to_numpy()[:,0]
-input_zemba['ice_fraction'] = np.interp(lat, ice6g_lat, ice6g_if)
+# ice6g_lat = pd.read_csv(path+'/other_data/ice6g/ice6g.txt', skiprows=7, usecols=[0], sep='\t').to_numpy()[:,0]
+# ice6g_if  = pd.read_csv(path+'/other_data/ice6g/ice6g.txt', skiprows=7, usecols=[5], sep='\t').to_numpy()[:,0]
+# input_zemba['ice_fraction'] = np.interp(lat, ice6g_lat, ice6g_if)
 
 # LGM from ICE6G_C dataset (Argus et al., 2014; Peltier et al., 2014)
-# ice6g_lat = pd.read_csv(path+'/other_data/ice6g/ice6g.txt', skiprows=7, usecols=[0], sep='\t').to_numpy()[:,0]
-# ice6g_if  = pd.read_csv(path+'/other_data/ice6g/ice6g.txt', skiprows=7, usecols=[6], sep='\t').to_numpy()[:,0]
-# input_zemba['ice_fraction'] = np.interp(lat, ice6g_lat, ice6g_if)
+ice6g_lat = pd.read_csv(path+'/other_data/ice6g/ice6g.txt', skiprows=7, usecols=[0], sep='\t').to_numpy()[:,0]
+ice6g_if  = pd.read_csv(path+'/other_data/ice6g/ice6g.txt', skiprows=7, usecols=[6], sep='\t').to_numpy()[:,0]
+input_zemba['ice_fraction'] = np.interp(lat, ice6g_lat, ice6g_if)
 
 # No ice.
 # input_zemba['ice_fraction'] = np.zeros(( lat.size ))
@@ -289,7 +288,7 @@ input_zemba['tbhfco']=np.array([0.006])  # ocean # <----------------------------
 input_zemba['tau']=np.array([3.0]) # <-------------------------------------------------------- HERE
 
 # atm. co2 conc.
-input_zemba['co2']=np.array([284. * (44.01/28.97) * 1e-6]) # <-------------------------------- HERE
+input_zemba['co2']=np.array([184. * (44.01/28.97) * 1e-6]) # <-------------------------------- HERE
 
 # albedo.
 input_zemba['alphag']=np.array([0.15])    # bare ground  # <---------------------------------- HERE

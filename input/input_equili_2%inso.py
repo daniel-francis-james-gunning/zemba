@@ -2,8 +2,7 @@
 """
 @author: Daniel Gunning (University of Bergen)
 
-Example template for constructing an input file for an equillibrium run of ZEMBA. 
-Settings are kept to the standard pre-industrial run for the moist EBM version of ZEMBA.
++2% insolation input file...
 
 <-----------------------------HERE = parameters/settings that can be changed
 
@@ -20,7 +19,7 @@ import pandas as pd
 import pickle
 
 # NAME OF RUN.
-name = 'template'
+name = 'equili_2%inso'
 
 # PATH
 path = os.getcwd()   # MIGHT NEED TO CHANGE PATHS TO ACCESS *OTHER DATA* FOLDER
@@ -133,7 +132,7 @@ input_zemba['strength_of_overturning']=np.array([1.]) # <-----------------------
 # [option to modify strength of insolation]
 #------------------------------------------
 
-input_zemba['strength_of_insolation']=np.array([1.])  # <------------------------------------------ HERE
+input_zemba['strength_of_insolation']=np.array([1.02])  # <------------------------------------------ HERE
 
 # [option to keep snow over land fixed to the pre-industrial.]  <---------------------------------- COMMENT/UNCOMMENT
 #-------------------------------------------------------------
@@ -219,7 +218,7 @@ if input_zemba['res'] == 1.:
 if input_zemba['res'] == 2.5:
     input_zemba['land_fraction'][-4:] = 0.      
 if input_zemba['res'] == 5.:
-    input_zemba['land_fraction'][-2:]   = 0. 
+    input_zemba['land_fraction'][-2:] = 0. 
     
 # Aqua planet (no land.)
 # input_zemba['land_fraction'] = np.zeros((lat.size))

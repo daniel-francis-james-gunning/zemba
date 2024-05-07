@@ -2,8 +2,7 @@
 """
 @author: Daniel Gunning (University of Bergen)
 
-Example template for constructing an input file for an equillibrium run of ZEMBA. 
-Settings are kept to the standard pre-industrial run for the moist EBM version of ZEMBA.
+2x CO2 input file...
 
 <-----------------------------HERE = parameters/settings that can be changed
 
@@ -20,7 +19,7 @@ import pandas as pd
 import pickle
 
 # NAME OF RUN.
-name = 'template'
+name = 'equili_2xCO2'
 
 # PATH
 path = os.getcwd()   # MIGHT NEED TO CHANGE PATHS TO ACCESS *OTHER DATA* FOLDER
@@ -219,7 +218,7 @@ if input_zemba['res'] == 1.:
 if input_zemba['res'] == 2.5:
     input_zemba['land_fraction'][-4:] = 0.      
 if input_zemba['res'] == 5.:
-    input_zemba['land_fraction'][-2:]   = 0. 
+    input_zemba['land_fraction'][-2:] = 0. 
     
 # Aqua planet (no land.)
 # input_zemba['land_fraction'] = np.zeros((lat.size))
@@ -289,7 +288,7 @@ input_zemba['tbhfco']=np.array([0.006])  # ocean # <----------------------------
 input_zemba['tau']=np.array([3.0]) # <-------------------------------------------------------- HERE
 
 # atm. co2 conc.
-input_zemba['co2']=np.array([284. * (44.01/28.97) * 1e-6]) # <-------------------------------- HERE
+input_zemba['co2']=np.array([284. * 2 * (44.01/28.97) * 1e-6]) # <-------------------------------- HERE
 
 # albedo.
 input_zemba['alphag']=np.array([0.15])    # bare ground  # <---------------------------------- HERE
