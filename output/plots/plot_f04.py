@@ -24,12 +24,12 @@ from utilities import *
 #------------------------------
 
 # load data
-with open('output/equilibrium/pi_moist_res5.0.pkl', 'rb') as f:
-    pi_data = pickle.load(f)
+with open(output_path+'/output_equili_pi_res5.0.pkl', 'rb') as f:
+    pi_sim = pickle.load(f)
     
-pi    = pi_data['StateYear']
-Var   = pi_data['Var']
-INPUT = pi_data['Input']
+pi    = pi_sim['StateYear']
+Var   = pi_sim['Var']
+INPUT = pi_sim['Input']
  
 # TOA albedo
 zemba_alpha_toa        = pi["rsut"].mean(axis=1)/pi["I"].mean(axis=1)
@@ -44,11 +44,11 @@ zemba_alpha_boa_global = round(global_pymean(zemba_alpha_boa, Var), 2)
 #-----------------------------------
 
 # load annual data
-noresm2_lat     = np.loadtxt(script_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=0)
-noresm2_rsdt    = np.loadtxt(script_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=5)
-noresm2_rsut    = np.loadtxt(script_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=6)
-noresm2_rsds    = np.loadtxt(script_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=7)
-noresm2_rsus    = np.loadtxt(script_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=8)
+noresm2_lat     = np.loadtxt(input_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=0)
+noresm2_rsdt    = np.loadtxt(input_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=5)
+noresm2_rsut    = np.loadtxt(input_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=6)
+noresm2_rsds    = np.loadtxt(input_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=7)
+noresm2_rsus    = np.loadtxt(input_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=8)
 
 # interpolate data
 noresm2_rsdt = np.interp(Var['lat'], noresm2_lat, noresm2_rsdt)
@@ -69,11 +69,11 @@ noresm2_alphas_global = global_mean2(noresm2_alphas, Var["lat"], Var["dlat"])
 #---------------------------
 
 # load annual data
-era5_lat     = np.loadtxt(script_path+'/other_data/era5/era5_annual.txt', skiprows=5, usecols=0)
-era5_rsdt    = np.loadtxt(script_path+'/other_data/era5/era5_annual.txt', skiprows=5, usecols=5)
-era5_rsut    = np.loadtxt(script_path+'/other_data/era5/era5_annual.txt', skiprows=5, usecols=6)
-era5_rsds    = np.loadtxt(script_path+'/other_data/era5/era5_annual.txt', skiprows=5, usecols=7)
-era5_rsus    = np.loadtxt(script_path+'/other_data/era5/era5_annual.txt', skiprows=5, usecols=8)
+era5_lat     = np.loadtxt(input_path+'/other_data/era5/era5_annual.txt', skiprows=5, usecols=0)
+era5_rsdt    = np.loadtxt(input_path+'/other_data/era5/era5_annual.txt', skiprows=5, usecols=5)
+era5_rsut    = np.loadtxt(input_path+'/other_data/era5/era5_annual.txt', skiprows=5, usecols=6)
+era5_rsds    = np.loadtxt(input_path+'/other_data/era5/era5_annual.txt', skiprows=5, usecols=7)
+era5_rsus    = np.loadtxt(input_path+'/other_data/era5/era5_annual.txt', skiprows=5, usecols=8)
 
 # interpolate data
 era5_rsdt = np.interp(Var['lat'], era5_lat, era5_rsdt)

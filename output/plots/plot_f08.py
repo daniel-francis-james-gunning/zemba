@@ -24,26 +24,26 @@ from utilities import *
 # load zemba pre-industrial sim
 #------------------------------
 
-with open(os.getcwd()+'\\output\\equilibrium\\pi_moist_res5.0.pkl', 'rb') as f:
-    pi = pickle.load(f)['StateYear']
-with open(os.getcwd()+'\\output\\equilibrium\\pi_moist_res5.0.pkl', 'rb') as f:
-    Var = pickle.load(f)['Var']
+with open(output_path+'/output_equili_pi_res5.0.pkl', 'rb') as f:
+    pi   = pickle.load(f)['StateYear']
+with open(output_path+'/output_equili_pi_res5.0.pkl', 'rb') as f:
+    Var  = pickle.load(f)['Var'] 
     
 #----------------------
 # load zemba 2x CO2 sim
 #----------------------
 
-with open(os.getcwd()+'\\output\\equilibrium\\2xCO2_moist_res5.0.pkl', 'rb') as f:
+with open(output_path+'/output_equili_2xCO2_res5.0.pkl', 'rb') as f:
     dco2 = pickle.load(f)['StateYear']
     
 #--------------------------
 # load zemba +2% insolation
 #--------------------------
 
-with open(os.getcwd()+'\\output\\equilibrium\\2%Inso_moist_res5.0.pkl', 'rb') as f:
+with open(output_path+'/output_equili_2%inso_res5.0.pkl', 'rb') as f:
     dinso = pickle.load(f)['StateYear']
     
-    
+      
 # annual mean temperature
 #------------------------
 
@@ -98,11 +98,11 @@ for i in [1,3]:
 # format line plots
 axs[0].format(xlim = (-90, 90), xformatter = 'deglat', xlocator = np.arange(-90, 120, 30), xminorlocator = np.arange(-90, 100, 10))
 axs0=axs[0].twinx()
-axs[0].format(ylim = (0, x2CO2.max()*1.05), ylocator = np.arange(0, 13+1, 1), yminorlocator = [])
+axs[0].format(ylim = (0, x2CO2.max()*1.05), ylocator = np.arange(0, 15+1, 1), yminorlocator = [])
 axs0.format(ylim = (0, x2CO2_norm.max()*1.05), ylocator = np.arange(0, 5+1, 1), yminorlocator = [])
 axs[2].format(xlim = (-90, 90), xformatter = 'deglat', xlocator = np.arange(-90, 120, 30), xminorlocator = np.arange(-90, 100, 10), xlabel = 'Latitude')
 axs2=axs[2].twinx()
-axs[2].format(ylim = (0, Inso2.max()*1.1), ylocator = np.arange(0, 13+1, 1), yminorlocator = [])
+axs[2].format(ylim = (0, Inso2.max()*1.1), ylocator = np.arange(0, 15+1, 1), yminorlocator = [])
 axs2.format(ylim = (0, Inso2_norm.max()*1.1),ylocator = np.arange(0, 5+1, 1), yminorlocator = [])
 axs[2].format(xformatter='deglat')
 

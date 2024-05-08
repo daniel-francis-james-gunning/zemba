@@ -24,12 +24,12 @@ from utilities import *
 #------------------------------
 
 # load data
-with open('output/equilibrium/pi_moist_res5.0.pkl', 'rb') as f:
-    pi_data = pickle.load(f)
+with open(output_path+'/output_equili_pi_res5.0.pkl', 'rb') as f:
+    pi_sim = pickle.load(f)
     
-pi    = pi_data['StateYear']
-Var   = pi_data['Var']
-INPUT = pi_data['Input']
+pi    = pi_sim['StateYear']
+Var   = pi_sim['Var']
+INPUT = pi_sim['Input']
     
 # precipitation
 zemba_precip        = (pi['precip_flux'].mean(axis=1)/1000)*(60*60*24)*1000 
@@ -48,10 +48,10 @@ zemba_evap_global = global_mean2(zemba_evap, Var["lat"], Var["dlat"])
 #-----------------------------------
 
 # load annual data
-noresm2_lat      = np.loadtxt(script_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=0)
-noresm2_precip   = np.loadtxt(script_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=2)
-noresm2_sf       = np.loadtxt(script_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=3)
-noresm2_evap     = np.loadtxt(script_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=4)
+noresm2_lat      = np.loadtxt(input_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=0)
+noresm2_precip   = np.loadtxt(input_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=2)
+noresm2_sf       = np.loadtxt(input_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=3)
+noresm2_evap     = np.loadtxt(input_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=4)
 
 # interpolate data
 noresm2_precip   = np.interp(Var['lat'], noresm2_lat, noresm2_precip)
@@ -74,10 +74,10 @@ noresm2_evap_global     = global_mean2(noresm2_evap, Var["lat"], Var["dlat"])
 #---------------------------
 
 # load annual data
-era5_lat      = np.loadtxt(script_path+'/other_data/era5/era5_annual.txt', skiprows=5, usecols=0)
-era5_precip   = np.loadtxt(script_path+'/other_data/era5/era5_annual.txt', skiprows=5, usecols=2)
-era5_sf       = np.loadtxt(script_path+'/other_data/era5/era5_annual.txt', skiprows=5, usecols=3)
-era5_evap     = np.loadtxt(script_path+'/other_data/era5/era5_annual.txt', skiprows=5, usecols=4)
+era5_lat      = np.loadtxt(input_path+'/other_data/era5/era5_annual.txt', skiprows=5, usecols=0)
+era5_precip   = np.loadtxt(input_path+'/other_data/era5/era5_annual.txt', skiprows=5, usecols=2)
+era5_sf       = np.loadtxt(input_path+'/other_data/era5/era5_annual.txt', skiprows=5, usecols=3)
+era5_evap     = np.loadtxt(input_path+'/other_data/era5/era5_annual.txt', skiprows=5, usecols=4)
 
 # interpolate data
 era5_precip   = np.interp(Var['lat'], era5_lat, era5_precip)
@@ -225,7 +225,7 @@ axs[0].legend(handles = [zemba_sf_line, noresm2_sf_line, era5_sf_line],
 zemba_minus_noresm_sf = axs[2].plot(Var["lat"], zemba_sf - noresm2_sf, color = zemba_minus_noresm2_color, lw = zemba_minus_noresm2_lw, linestyle = ":")
 zemba_minus_era5_sf   = axs[2].plot(Var["lat"], zemba_sf - era5_sf, color = zemba_minus_era5_color, lw = zemba_minus_era5_lw, linestyle = ":")
 axs[2].legend(handles = [zemba_minus_noresm_sf, zemba_minus_era5_sf],
-              labels  = ["ZEMBA − NorESM2 (Snowfall)", "ZEMBA − ERA5 (Snowfall)"], frameon = False,  loc = "ur",
+              labels  = ["ZEMBA - NorESM2 (Snowfall)", "ZEMBA - ERA5 (Snowfall)"], frameon = False,  loc = "ur",
                bbox_to_anchor=(0.98, 0.97), ncols = 1, prop={'size':legend_fs})
 
 # plot evaporation
@@ -241,7 +241,7 @@ axs[1].legend(handles = [zemba_evap_line, noresm2_evap_line, era5_evap_line],
 zemba_minus_noresm_evap = axs[3].plot(Var["lat"], zemba_evap - noresm2_evap, color = zemba_minus_noresm2_color, lw = zemba_minus_noresm2_lw, linestyle = "-")
 zemba_minus_era5_evap = axs[3].plot(Var["lat"], zemba_evap - era5_evap, color = zemba_minus_era5_color, lw = zemba_minus_era5_lw, linestyle = "-")
 axs[3].legend(handles = [zemba_minus_noresm_evap, zemba_minus_era5_evap],
-              labels  = ["ZEMBA − NorESM2", "ZEMBA − ERA5"], frameon = False,  loc = "lc",
+              labels  = ["ZEMBA - NorESM2", "ZEMBA - ERA5"], frameon = False,  loc = "lc",
                bbox_to_anchor=(0.5, 0.05), ncols = 1, prop={'size':legend_fs})
 
             

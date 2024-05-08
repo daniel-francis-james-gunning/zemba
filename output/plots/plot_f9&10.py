@@ -29,42 +29,36 @@ experiments = {}
 # pre-industrial
 #---------------
 
-with open(os.getcwd()+'/output/equilibrium/pi_moist_res5.0.pkl', 'rb') as f:
-    experiments["pi"] = pickle.load(f)['StateYear']
-with open(os.getcwd()+'/output/equilibrium/pi_moist_res5.0.pkl', 'rb') as f:
-    Var = pickle.load(f)['Var']
+with open(output_path+'/output_equili_pi_res5.0.pkl', 'rb') as f:
+    experiments['pi']  = pickle.load(f)['StateYear']
+with open(output_path+'/output_equili_pi_res5.0.pkl', 'rb') as f:
+    Var  = pickle.load(f)['Var'] 
 
 # last glacial maximum
 #---------------------
 
-# ice fraction
-with open(os.getcwd()+'/output/equilibrium/lgm_icef_moist_res5.0.pkl', 'rb') as f:
-    experiments["lgm_icef"] = pickle.load(f)['StateYear']
+with open(output_path+'/output_equili_lgm_res5.0.pkl', 'rb') as f:
+    experiments['lgm']  = pickle.load(f)['StateYear']
     
-# ice fraction + elevation
-with open(os.getcwd()+'/output/equilibrium/lgm_icefh_moist_res5.0.pkl', 'rb') as f:
-    experiments["lgm_icefh"] = pickle.load(f)['StateYear']
+with open(output_path+'/output_equili_lgm_ice_res5.0.pkl', 'rb') as f:
+    experiments['lgm_ice']  = pickle.load(f)['StateYear']
+    
+with open(output_path+'/output_equili_lgm_ice_co2_res5.0.pkl', 'rb') as f:
+    experiments['lgm_co2']  = pickle.load(f)['StateYear']
+    
+with open(output_path+'/output_equili_lgm_ice_co2_inso_res5.0.pkl', 'rb') as f:
+    experiments['lgm_inso']  = pickle.load(f)['StateYear']
+    
+with open(output_path+'/output_equili_lgm_ice_co2_inso_oc15s_res5.0.pkl', 'rb') as f:
+    experiments['lgm_oc15s']  = pickle.load(f)['StateYear']
+    
+with open(output_path+'/output_equili_lgm_75%ov_res5.0.pkl', 'rb') as f:
+    experiments['lgm_75%ov']  = pickle.load(f)['StateYear']
+    
+with open(output_path+'/output_equili_lgm_50%ov_res5.0.pkl', 'rb') as f:
+    experiments['lgm_50%ov']  = pickle.load(f)['StateYear']
+    
 
-# ice fraction + elevation + co2
-with open(os.getcwd()+'/output/equilibrium/lgm_icefh_co2_moist_res5.0.pkl', 'rb') as f:
-    experiments["lgm_co2"] = pickle.load(f)['StateYear']
- 
-# ice fraction + elevation + co2 + insolation
-with open(os.getcwd()+'/output/equilibrium/lgm_icefh_co2_inso_moist_res5.0.pkl', 'rb') as f:
-    experiments["lgm_inso"] = pickle.load(f)['StateYear']
-experiments["lgm"] = experiments["lgm_inso"] 
-
-# ice fraction + elevation + co2 + inso + southward shift of ocean circulation
-with open(os.getcwd()+'/output/equilibrium/lgm_icefh_co2_inso_oc10s_moist_res5.0.pkl', 'rb') as f:
-    experiments["lgm_oc15s"] = pickle.load(f)['StateYear'] 
-
-# + 75 % Overturning
-with open(os.getcwd()+'/output/equilibrium/lgm_75%ov_moist_res5.0.pkl', 'rb') as f:
-    experiments["lgm_75%ov"] = pickle.load(f)['StateYear']
-
-# + 50% Overturning
-with open(os.getcwd()+'/output/equilibrium/lgm_50%ov_moist_res5.0.pkl', 'rb') as f:
-    experiments["lgm_50%ov"] = pickle.load(f)['StateYear']
     
 #-------------------------
 # Load data from zemba sims
@@ -162,10 +156,10 @@ for names, values in experiments.items():
 #----------
 
 # load annual data
-annan_lat  = np.loadtxt(script_path+'/other_data/lgm/annan_lgm.txt', skiprows=5, usecols=0)
-annan_mean = np.loadtxt(script_path+'/other_data/lgm/annan_lgm.txt', skiprows=5, usecols=1)
-annan_max  = np.loadtxt(script_path+'/other_data/lgm/annan_lgm.txt', skiprows=5, usecols=2)
-annan_min  = np.loadtxt(script_path+'/other_data/lgm/annan_lgm.txt', skiprows=5, usecols=3)
+annan_lat  = np.loadtxt(input_path+'/other_data/lgm/annan_lgm.txt', skiprows=5, usecols=0)
+annan_mean = np.loadtxt(input_path+'/other_data/lgm/annan_lgm.txt', skiprows=5, usecols=1)
+annan_max  = np.loadtxt(input_path+'/other_data/lgm/annan_lgm.txt', skiprows=5, usecols=2)
+annan_min  = np.loadtxt(input_path+'/other_data/lgm/annan_lgm.txt', skiprows=5, usecols=3)
 
 # surface area
 zonal_area = 2*np.pi*(6371000**2)*np.cos(np.deg2rad(annan_lat))*np.deg2rad(np.diff(annan_lat)[0])
@@ -183,15 +177,15 @@ annan_global = np.average(annan_mean, weights = zonal_area)
 #--------------------------
 
 # load annual data
-pmip_lat  = np.loadtxt(script_path+'/other_data/lgm/pmip_lgm.txt', skiprows=8, usecols=0)
-pmip3_mat_mean = np.loadtxt(script_path+'/other_data/lgm/pmip_lgm.txt', skiprows=8, usecols=1)
-pmip3_map_mean = np.loadtxt(script_path+'/other_data/lgm/pmip_lgm.txt', skiprows=8, usecols=2)
-pmip4_mat_mean = np.loadtxt(script_path+'/other_data/lgm/pmip_lgm.txt', skiprows=8, usecols=3)
-pmip4_map_mean = np.loadtxt(script_path+'/other_data/lgm/pmip_lgm.txt', skiprows=8, usecols=4)
-pmip_mat_max   = np.loadtxt(script_path+'/other_data/lgm/pmip_lgm.txt', skiprows=8, usecols=5)
-pmip_mat_min   = np.loadtxt(script_path+'/other_data/lgm/pmip_lgm.txt', skiprows=8, usecols=6)
-pmip_map_max   = np.loadtxt(script_path+'/other_data/lgm/pmip_lgm.txt', skiprows=8, usecols=7)
-pmip_map_min   = np.loadtxt(script_path+'/other_data/lgm/pmip_lgm.txt', skiprows=8, usecols=8)
+pmip_lat  = np.loadtxt(input_path+'/other_data/lgm/pmip_lgm.txt', skiprows=8, usecols=0)
+pmip3_mat_mean = np.loadtxt(input_path+'/other_data/lgm/pmip_lgm.txt', skiprows=8, usecols=1)
+pmip3_map_mean = np.loadtxt(input_path+'/other_data/lgm/pmip_lgm.txt', skiprows=8, usecols=2)
+pmip4_mat_mean = np.loadtxt(input_path+'/other_data/lgm/pmip_lgm.txt', skiprows=8, usecols=3)
+pmip4_map_mean = np.loadtxt(input_path+'/other_data/lgm/pmip_lgm.txt', skiprows=8, usecols=4)
+pmip_mat_max   = np.loadtxt(input_path+'/other_data/lgm/pmip_lgm.txt', skiprows=8, usecols=5)
+pmip_mat_min   = np.loadtxt(input_path+'/other_data/lgm/pmip_lgm.txt', skiprows=8, usecols=6)
+pmip_map_max   = np.loadtxt(input_path+'/other_data/lgm/pmip_lgm.txt', skiprows=8, usecols=7)
+pmip_map_min   = np.loadtxt(input_path+'/other_data/lgm/pmip_lgm.txt', skiprows=8, usecols=8)
 
 # surface area
 zonal_area = 2*np.pi*(6371000**2)*np.cos(np.deg2rad(pmip_lat))*np.deg2rad(np.diff(pmip_lat)[0])
@@ -319,10 +313,10 @@ for i in np.arange(2, 3+1):
     axs[i].format(xlabel = "Latitude", xformatter='deglat')
 
 # titles
-axs[0].format(title = r'(a) LGM − PI Zonal Temperatures ($^{\circ}$C)', titleloc = "left")
-axs[1].format(title = r'(b) LGM − PI Zonal Precipitation (mm/day)', titleloc = "left")
-axs[2].format(title = r'(c) LGM − PI Zonal Heat Transport (PW) for ZEMBA', titleloc = "left")
-axs[3].format(title = r'(d) LGM − PI Atmospheric Heat Transport (PW) for ZEMBA', titleloc = "left")
+axs[0].format(title = r'(a) LGM - PI Zonal Temperatures ($^{\circ}$C)', titleloc = "left")
+axs[1].format(title = r'(b) LGM - PI Zonal Precipitation (mm/day)', titleloc = "left")
+axs[2].format(title = r'(c) LGM - PI Zonal Heat Transport (PW) for ZEMBA', titleloc = "left")
+axs[3].format(title = r'(d) LGM - PI Atmospheric Heat Transport (PW) for ZEMBA', titleloc = "left")
 
 # plot PI - LGM temperatures
 #---------------------------
@@ -441,7 +435,7 @@ axs[1].format(title = r'(B) LGM - PI Zonal Precipitation (mm/day) for various ex
 # plot LGM - PI zonal temperatures
 #---------------------------------
 
-zemba_lgm_pi_icefh_line  = axs[0].plot(Var["lat"], zemba["lgm_icefh_tas"] - zemba["pi_tas"], color = "blue9", lw = 1., linestyle = "-.")
+zemba_lgm_pi_icefh_line  = axs[0].plot(Var["lat"], zemba["lgm_ice_tas"] - zemba["pi_tas"], color = "blue9", lw = 1., linestyle = "-.")
 zemba_lgm_pi_co2_line    = axs[0].plot(Var["lat"], zemba["lgm_co2_tas"] - zemba["pi_tas"], color = "red9", lw = 1, linestyle = "-.")
 zemba_lgm_pi_inso_line   = axs[0].plot(Var["lat"], zemba["lgm_inso_tas"] - zemba["pi_tas"], color = "black", lw = 1.5, linestyle = "-")
 zemba_lgm_pi_oc10s_line  = axs[0].plot(Var["lat"], zemba["lgm_oc15s_tas"] - zemba["pi_tas"], color = "black", lw = 1, linestyle = "-.")
@@ -460,7 +454,7 @@ axs[0].legend(handles = [zemba_lgm_pi_icefh_line, zemba_lgm_pi_co2_line, zemba_l
 # plot LGM - PI zonal precipitation
 #----------------------------------
 
-zemba_lgm_pi_icef_line   = axs[1].plot(Var["lat"], zemba["lgm_icefh_precip"] - zemba["pi_precip"], color = "blue9", lw = 1, linestyle = "-.")
+zemba_lgm_pi_icef_line   = axs[1].plot(Var["lat"], zemba["lgm_ice_precip"] - zemba["pi_precip"], color = "blue9", lw = 1, linestyle = "-.")
 zemba_lgm_pi_co2_line    = axs[1].plot(Var["lat"], zemba["lgm_co2_precip"] - zemba["pi_precip"], color = "red9", lw = 1, linestyle = "-.")
 zemba_lgm_pi_inso_line   = axs[1].plot(Var["lat"], zemba["lgm_inso_precip"] - zemba["pi_precip"], color = "black", lw = 1, linestyle = "-")
 zemba_lgm_pi_oc10s_line  = axs[1].plot(Var["lat"], zemba["lgm_oc15s_precip"] - zemba["pi_precip"], color = "black", lw = 1, linestyle = "-.")
@@ -486,24 +480,24 @@ import pandas as pd
 
 # surface air temperature
 air_data = pd.DataFrame(np.array([[zemba["lgm_tas_90S-30S"]-zemba["pi_tas_90S-30S"], 
-                                   zemba["lgm_tas_30S-30N"]-zemba["pi_tas_30S-30N"], 
-                                   zemba["lgm_tas_30N-90N"]-zemba["pi_tas_30N-90N"], 
-                                   zemba["lgm_tas_global"]-zemba["pi_tas_global"]],
+                                    zemba["lgm_tas_30S-30N"]-zemba["pi_tas_30S-30N"], 
+                                    zemba["lgm_tas_30N-90N"]-zemba["pi_tas_30N-90N"], 
+                                    zemba["lgm_tas_global"]-zemba["pi_tas_global"]],
                                   
                                     [annan_90S_30S,
-                                     annan_30S_30N,
-                                     annan_30N_90N,
-                                     annan_global],
+                                      annan_30S_30N,
+                                      annan_30N_90N,
+                                      annan_global],
                                 
                                     [pmip3_mat_90S_30S,
-                                     pmip3_mat_30S_30N,
-                                     pmip3_mat_30N_90N,
-                                     pmip3_mat_global],
+                                      pmip3_mat_30S_30N,
+                                      pmip3_mat_30N_90N,
+                                      pmip3_mat_global],
                               
                                     [pmip4_mat_90S_30S,
-                                     pmip4_mat_30S_30N,
-                                     pmip4_mat_30N_90N,
-                                     pmip4_mat_global],
+                                      pmip4_mat_30S_30N,
+                                      pmip4_mat_30N_90N,
+                                      pmip4_mat_global],
         
                               ]),
                         
@@ -512,54 +506,54 @@ air_data = pd.DataFrame(np.array([[zemba["lgm_tas_90S-30S"]-zemba["pi_tas_90S-30
 
 # precipitation data
 precip_data = pd.DataFrame(np.array([[zemba["lgm_precip_90S-30S"]-zemba["pi_precip_90S-30S"], 
-                               zemba["lgm_precip_30S-30N"]-zemba["pi_precip_30S-30N"], 
-                               zemba["lgm_precip_30N-90N"]-zemba["pi_precip_30N-90N"], 
-                               zemba["lgm_precip_global"]-zemba["pi_precip_global"]],
+                                zemba["lgm_precip_30S-30N"]-zemba["pi_precip_30S-30N"], 
+                                zemba["lgm_precip_30N-90N"]-zemba["pi_precip_30N-90N"], 
+                                zemba["lgm_precip_global"]-zemba["pi_precip_global"]],
                                       
                               [pmip3_map_90S_30S,
-                               pmip3_map_30S_30N,
-                               pmip3_map_30N_90N,
-                               pmip3_map_global],
+                                pmip3_map_30S_30N,
+                                pmip3_map_30N_90N,
+                                pmip3_map_global],
                               
                               [pmip4_map_90S_30S,
-                               pmip4_map_30S_30N,
-                               pmip4_map_30N_90N,
-                               pmip4_map_global],
+                                pmip4_map_30S_30N,
+                                pmip4_map_30N_90N,
+                                pmip4_map_global],
                               
                               ]),
                     index = ["Zemba", "PMIP3", "PMIP4"],
                     columns = ["90S-30S", "30S-30N", "30N-90N", "Global"]).round(decimals=2)
 
 # temperature data for LGM decomposition
-series_data_air = pd.DataFrame(np.array([[zemba["lgm_icefh_tas_90S-30S"]-zemba["pi_tas_90S-30S"], 
-                               zemba["lgm_icefh_tas_30S-30N"]-zemba["pi_tas_30S-30N"], 
-                               zemba["lgm_icefh_tas_30N-90N"]-zemba["pi_tas_30N-90N"], 
-                               zemba["lgm_icefh_tas_global"]-zemba["pi_tas_global"]],
+series_data_air = pd.DataFrame(np.array([[zemba["lgm_ice_tas_90S-30S"]-zemba["pi_tas_90S-30S"], 
+                                zemba["lgm_ice_tas_30S-30N"]-zemba["pi_tas_30S-30N"], 
+                                zemba["lgm_ice_tas_30N-90N"]-zemba["pi_tas_30N-90N"], 
+                                zemba["lgm_ice_tas_global"]-zemba["pi_tas_global"]],
                                      
                                 [zemba["lgm_co2_tas_90S-30S"]-zemba["pi_tas_90S-30S"], 
-                                 zemba["lgm_co2_tas_30S-30N"]-zemba["pi_tas_30S-30N"], 
-                                 zemba["lgm_co2_tas_30N-90N"]-zemba["pi_tas_30N-90N"], 
-                                 zemba["lgm_co2_tas_global"]-zemba["pi_tas_global"]],
+                                  zemba["lgm_co2_tas_30S-30N"]-zemba["pi_tas_30S-30N"], 
+                                  zemba["lgm_co2_tas_30N-90N"]-zemba["pi_tas_30N-90N"], 
+                                  zemba["lgm_co2_tas_global"]-zemba["pi_tas_global"]],
                                 
                                 [zemba["lgm_inso_tas_90S-30S"]-zemba["pi_tas_90S-30S"], 
-                                 zemba["lgm_inso_tas_30S-30N"]-zemba["pi_tas_30S-30N"], 
-                                 zemba["lgm_inso_tas_30N-90N"]-zemba["pi_tas_30N-90N"], 
-                                 zemba["lgm_inso_tas_global"]-zemba["pi_tas_global"]],
+                                  zemba["lgm_inso_tas_30S-30N"]-zemba["pi_tas_30S-30N"], 
+                                  zemba["lgm_inso_tas_30N-90N"]-zemba["pi_tas_30N-90N"], 
+                                  zemba["lgm_inso_tas_global"]-zemba["pi_tas_global"]],
                                 
                                 [zemba["lgm_oc15s_tas_90S-30S"]-zemba["pi_tas_90S-30S"], 
-                                 zemba["lgm_oc15s_tas_30S-30N"]-zemba["pi_tas_30S-30N"], 
-                                 zemba["lgm_oc15s_tas_30N-90N"]-zemba["pi_tas_30N-90N"], 
-                                 zemba["lgm_oc15s_tas_global"]-zemba["pi_tas_global"]],
+                                  zemba["lgm_oc15s_tas_30S-30N"]-zemba["pi_tas_30S-30N"], 
+                                  zemba["lgm_oc15s_tas_30N-90N"]-zemba["pi_tas_30N-90N"], 
+                                  zemba["lgm_oc15s_tas_global"]-zemba["pi_tas_global"]],
                                 
                                 [zemba["lgm_75%ov_tas_90S-30S"]-zemba["pi_tas_90S-30S"], 
-                                 zemba["lgm_75%ov_tas_30S-30N"]-zemba["pi_tas_30S-30N"], 
-                                 zemba["lgm_75%ov_tas_30N-90N"]-zemba["pi_tas_30N-90N"], 
-                                 zemba["lgm_75%ov_tas_global"]-zemba["pi_tas_global"]],
+                                  zemba["lgm_75%ov_tas_30S-30N"]-zemba["pi_tas_30S-30N"], 
+                                  zemba["lgm_75%ov_tas_30N-90N"]-zemba["pi_tas_30N-90N"], 
+                                  zemba["lgm_75%ov_tas_global"]-zemba["pi_tas_global"]],
                                 
                                 [zemba["lgm_50%ov_tas_90S-30S"]-zemba["pi_tas_90S-30S"], 
-                                 zemba["lgm_50%ov_tas_30S-30N"]-zemba["pi_tas_30S-30N"], 
-                                 zemba["lgm_50%ov_tas_30N-90N"]-zemba["pi_tas_30N-90N"], 
-                                 zemba["lgm_50%ov_tas_global"]-zemba["pi_tas_global"]],
+                                  zemba["lgm_50%ov_tas_30S-30N"]-zemba["pi_tas_30S-30N"], 
+                                  zemba["lgm_50%ov_tas_30N-90N"]-zemba["pi_tas_30N-90N"], 
+                                  zemba["lgm_50%ov_tas_global"]-zemba["pi_tas_global"]],
 
                               ]),
                            
@@ -568,35 +562,35 @@ series_data_air = pd.DataFrame(np.array([[zemba["lgm_icefh_tas_90S-30S"]-zemba["
 
 
 # precipitation data for LGM decomposition
-series_data_precip = pd.DataFrame(np.array([[zemba["lgm_icefh_precip_90S-30S"]-zemba["pi_precip_90S-30S"], 
-                                zemba["lgm_icefh_precip_30S-30N"]-zemba["pi_precip_30S-30N"], 
-                                zemba["lgm_icefh_precip_30N-90N"]-zemba["pi_precip_30N-90N"], 
-                                zemba["lgm_icefh_precip_global"]-zemba["pi_precip_global"]],
+series_data_precip = pd.DataFrame(np.array([[zemba["lgm_ice_precip_90S-30S"]-zemba["pi_precip_90S-30S"], 
+                                zemba["lgm_ice_precip_30S-30N"]-zemba["pi_precip_30S-30N"], 
+                                zemba["lgm_ice_precip_30N-90N"]-zemba["pi_precip_30N-90N"], 
+                                zemba["lgm_ice_precip_global"]-zemba["pi_precip_global"]],
                                       
                                 [zemba["lgm_co2_precip_90S-30S"]-zemba["pi_precip_90S-30S"], 
-                                 zemba["lgm_co2_precip_30S-30N"]-zemba["pi_precip_30S-30N"], 
-                                 zemba["lgm_co2_precip_30N-90N"]-zemba["pi_precip_30N-90N"], 
-                                 zemba["lgm_co2_precip_global"]-zemba["pi_precip_global"]],
+                                  zemba["lgm_co2_precip_30S-30N"]-zemba["pi_precip_30S-30N"], 
+                                  zemba["lgm_co2_precip_30N-90N"]-zemba["pi_precip_30N-90N"], 
+                                  zemba["lgm_co2_precip_global"]-zemba["pi_precip_global"]],
                                 
                                 [zemba["lgm_inso_precip_90S-30S"]-zemba["pi_precip_90S-30S"], 
-                                 zemba["lgm_inso_precip_30S-30N"]-zemba["pi_precip_30S-30N"], 
-                                 zemba["lgm_inso_precip_30N-90N"]-zemba["pi_precip_30N-90N"], 
-                                 zemba["lgm_inso_precip_global"]-zemba["pi_precip_global"]],
+                                  zemba["lgm_inso_precip_30S-30N"]-zemba["pi_precip_30S-30N"], 
+                                  zemba["lgm_inso_precip_30N-90N"]-zemba["pi_precip_30N-90N"], 
+                                  zemba["lgm_inso_precip_global"]-zemba["pi_precip_global"]],
                                 
                                 [zemba["lgm_oc15s_precip_90S-30S"]-zemba["pi_precip_90S-30S"], 
-                                 zemba["lgm_oc15s_precip_30S-30N"]-zemba["pi_precip_30S-30N"], 
-                                 zemba["lgm_oc15s_precip_30N-90N"]-zemba["pi_precip_30N-90N"], 
-                                 zemba["lgm_oc15s_precip_global"]-zemba["pi_precip_global"]],
+                                  zemba["lgm_oc15s_precip_30S-30N"]-zemba["pi_precip_30S-30N"], 
+                                  zemba["lgm_oc15s_precip_30N-90N"]-zemba["pi_precip_30N-90N"], 
+                                  zemba["lgm_oc15s_precip_global"]-zemba["pi_precip_global"]],
                                 
                                 [zemba["lgm_75%ov_precip_90S-30S"]-zemba["pi_precip_90S-30S"], 
-                                 zemba["lgm_75%ov_precip_30S-30N"]-zemba["pi_precip_30S-30N"], 
-                                 zemba["lgm_75%ov_precip_30N-90N"]-zemba["pi_precip_30N-90N"], 
-                                 zemba["lgm_75%ov_precip_global"]-zemba["pi_precip_global"]],
+                                  zemba["lgm_75%ov_precip_30S-30N"]-zemba["pi_precip_30S-30N"], 
+                                  zemba["lgm_75%ov_precip_30N-90N"]-zemba["pi_precip_30N-90N"], 
+                                  zemba["lgm_75%ov_precip_global"]-zemba["pi_precip_global"]],
                                 
                                 [zemba["lgm_50%ov_precip_90S-30S"]-zemba["pi_precip_90S-30S"], 
-                                 zemba["lgm_50%ov_precip_30S-30N"]-zemba["pi_precip_30S-30N"], 
-                                 zemba["lgm_50%ov_precip_30N-90N"]-zemba["pi_precip_30N-90N"], 
-                                 zemba["lgm_50%ov_precip_global"]-zemba["pi_precip_global"]],
+                                  zemba["lgm_50%ov_precip_30S-30N"]-zemba["pi_precip_30S-30N"], 
+                                  zemba["lgm_50%ov_precip_30N-90N"]-zemba["pi_precip_30N-90N"], 
+                                  zemba["lgm_50%ov_precip_global"]-zemba["pi_precip_global"]],
 
                               ]),
                            

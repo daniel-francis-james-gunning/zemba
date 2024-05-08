@@ -23,12 +23,12 @@ from utilities import *
 # load zemba pre-industrial sim
 #------------------------------
 
-with open('output/equilibrium/pi_moist_res5.0.pkl', 'rb') as f:
-    pi_data = pickle.load(f)
+with open(output_path+'/output_equili_pi_res5.0.pkl', 'rb') as f:
+    pi_sim = pickle.load(f)
     
-pi    = pi_data['StateYear']
-Var   = pi_data['Var']
-INPUT = pi_data['Input']
+pi    = pi_sim['StateYear']
+Var   = pi_sim['Var']
+INPUT = pi_sim['Input']
     
 
 # radiative fluxes
@@ -49,14 +49,14 @@ zemba_rsnet_global   = global_mean2(zemba_rsnet, Var["lat"], Var["dlat"])
 #-----------------------------------
 
 # load annual data
-noresm2_lat     = np.loadtxt(script_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=0)
-noresm2_rsdt    = np.loadtxt(script_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=5)
-noresm2_rsut    = np.loadtxt(script_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=6)
-noresm2_rsds    = np.loadtxt(script_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=7)
-noresm2_rsus    = np.loadtxt(script_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=8)
-noresm2_rlut    = np.loadtxt(script_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=9)
-noresm2_rlds    = np.loadtxt(script_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=10)
-noresm2_rlus    = np.loadtxt(script_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=11)
+noresm2_lat     = np.loadtxt(input_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=0)
+noresm2_rsdt    = np.loadtxt(input_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=5)
+noresm2_rsut    = np.loadtxt(input_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=6)
+noresm2_rsds    = np.loadtxt(input_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=7)
+noresm2_rsus    = np.loadtxt(input_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=8)
+noresm2_rlut    = np.loadtxt(input_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=9)
+noresm2_rlds    = np.loadtxt(input_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=10)
+noresm2_rlus    = np.loadtxt(input_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=11)
 
 # interpolate data
 noresm2_rsdt = np.interp(Var['lat'], noresm2_lat, noresm2_rsdt)
@@ -82,14 +82,14 @@ noresm2_rsnet = noresm2_rsdsnet + noresm2_rldsnet
 # ERA5 1940-1970 climatology
 #---------------------------
 
-era5_lat     = np.loadtxt(script_path+'/other_data/era5/era5_annual.txt', skiprows=5, usecols=0)
-era5_rsdt    = np.loadtxt(script_path+'/other_data/era5/era5_annual.txt', skiprows=5, usecols=5)
-era5_rsut    = np.loadtxt(script_path+'/other_data/era5/era5_annual.txt', skiprows=5, usecols=6)
-era5_rsds    = np.loadtxt(script_path+'/other_data/era5/era5_annual.txt', skiprows=5, usecols=7)
-era5_rsus    = np.loadtxt(script_path+'/other_data/era5/era5_annual.txt', skiprows=5, usecols=8)
-era5_rlut    = np.loadtxt(script_path+'/other_data/era5/era5_annual.txt', skiprows=5, usecols=9)
-era5_rlds    = np.loadtxt(script_path+'/other_data/era5/era5_annual.txt', skiprows=5, usecols=10)
-era5_rlus    = np.loadtxt(script_path+'/other_data/era5/era5_annual.txt', skiprows=5, usecols=11)
+era5_lat     = np.loadtxt(input_path+'/other_data/era5/era5_annual.txt', skiprows=5, usecols=0)
+era5_rsdt    = np.loadtxt(input_path+'/other_data/era5/era5_annual.txt', skiprows=5, usecols=5)
+era5_rsut    = np.loadtxt(input_path+'/other_data/era5/era5_annual.txt', skiprows=5, usecols=6)
+era5_rsds    = np.loadtxt(input_path+'/other_data/era5/era5_annual.txt', skiprows=5, usecols=7)
+era5_rsus    = np.loadtxt(input_path+'/other_data/era5/era5_annual.txt', skiprows=5, usecols=8)
+era5_rlut    = np.loadtxt(input_path+'/other_data/era5/era5_annual.txt', skiprows=5, usecols=9)
+era5_rlds    = np.loadtxt(input_path+'/other_data/era5/era5_annual.txt', skiprows=5, usecols=10)
+era5_rlus    = np.loadtxt(input_path+'/other_data/era5/era5_annual.txt', skiprows=5, usecols=11)
 
 # interpolate data
 era5_rsdt = np.interp(Var['lat'], era5_lat, era5_rsdt)
@@ -250,7 +250,7 @@ zemba_minus_era5_toa_line = axs[2].plot(Var["lat"],  zemba_rtnet - era5_rtnet, c
 
 # legend
 axs[2].legend(handles = [zemba_minus_noresm_toa_line, zemba_minus_era5_toa_line],
-              labels  = ["ZEMBA − NorESM2 (NET)", "ZEMBA − ERA5 (NET)"], frameon = False,
+              labels  = ["ZEMBA - NorESM2 (NET)", "ZEMBA - ERA5 (NET)"], frameon = False,
               loc = "uc", bbox_to_anchor=(0.5, 0.98), ncols = 2, prop={'size':legend_fs}) 
 
 # plot SFC radiative fluxes
@@ -291,7 +291,7 @@ zemba_minus_era5_sfc_line = axs[3].plot(Var["lat"],  zemba_rsnet - era5_rsnet, c
 
 # legend
 axs[3].legend(handles = [zemba_minus_noresm_sfc_line, zemba_minus_era5_sfc_line],
-              labels  = ["ZEMBA − NorESM2 (NET)", "ZEMBA − ERA5 (NET)"], frameon = False,
+              labels  = ["ZEMBA - NorESM2 (NET)", "ZEMBA - ERA5 (NET)"], frameon = False,
               loc = "uc", bbox_to_anchor=(0.5, 0.98), ncols = 2, prop={'size':legend_fs})  
  
 fig.save(os.getcwd()+"/output/plots/f06.png", dpi= 300)

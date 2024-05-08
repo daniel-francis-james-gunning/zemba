@@ -23,8 +23,11 @@ from utilities import *
 # load zemba pre-industrial sim
 #------------------------------
 
-with open('output/equilibrium/pi_moist_res5.0.pkl', 'rb') as f:
+with open(output_path+'/output_equili_pi_res5.0.pkl', 'rb') as f:
     pi_sim = pickle.load(f)
+    
+# with open('output/equilibrium/pi_moist_res5.0.pkl', 'rb') as f:
+#     pi_sim = pickle.load(f)
     
 pi    = pi_sim['StateYear']
 Var   = pi_sim['Var']
@@ -51,9 +54,9 @@ zemba_tas_djf = ((np.append(pi["Tax"][:,0:58+1], pi["Tax"][:,334:], axis = 1)).m
 #-----------------------------------
 
 # load data
-noresm2_lat             = np.loadtxt(script_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=0)
-noresm2_tas_annual      = np.loadtxt(script_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=1)
-noresm2_tas_monthly_nc  = np.loadtxt(script_path+'/other_data/noresm2/noresm2_t2m_monthly.txt', skiprows=5, usecols=[1,2,3,4,5,6,7,8,9,10,11,12])
+noresm2_lat             = np.loadtxt(input_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=0)
+noresm2_tas_annual      = np.loadtxt(input_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=1)
+noresm2_tas_monthly_nc  = np.loadtxt(input_path+'/other_data/noresm2/noresm2_t2m_monthly.txt', skiprows=5, usecols=[1,2,3,4,5,6,7,8,9,10,11,12])
 
 # interpolate data
 noresm2_tas_annual  = np.interp(Var['lat'], noresm2_lat, noresm2_tas_annual) - Var['K']
@@ -84,9 +87,9 @@ noresm2_tas_djf = ( ((noresm2_tas_monthly[:,11]*31.) +
 #-------------------------
 
 # load data
-era5_lat             = np.loadtxt(script_path+'/other_data/era5/era5_annual.txt', skiprows=5, usecols=0)
-era5_tas_annual      = np.loadtxt(script_path+'/other_data/era5/era5_annual.txt', skiprows=5, usecols=1)
-era5_tas_monthly_nc  = np.loadtxt(script_path+'/other_data/era5/era5_t2m_monthly.txt', skiprows=5, usecols=[1,2,3,4,5,6,7,8,9,10,11,12])
+era5_lat             = np.loadtxt(input_path+'/other_data/era5/era5_annual.txt', skiprows=5, usecols=0)
+era5_tas_annual      = np.loadtxt(input_path+'/other_data/era5/era5_annual.txt', skiprows=5, usecols=1)
+era5_tas_monthly_nc  = np.loadtxt(input_path+'/other_data/era5/era5_t2m_monthly.txt', skiprows=5, usecols=[1,2,3,4,5,6,7,8,9,10,11,12])
 
 # interpolate data
 era5_tas_annual  = np.interp(Var['lat'], era5_lat, era5_tas_annual) - Var['K']

@@ -23,12 +23,12 @@ from utilities import *
 # load zemba pre-industrial sim
 #------------------------------
 
-with open('output/equilibrium/pi_moist_res5.0.pkl', 'rb') as f:
-    pi_data = pickle.load(f)
+with open(output_path+'/output_equili_pi_res5.0.pkl', 'rb') as f:
+    pi_sim = pickle.load(f)
     
-pi    = pi_data['StateYear']
-Var   = pi_data['Var']
-INPUT = pi_data['Input']
+pi    = pi_sim['StateYear']
+Var   = pi_sim['Var']
+INPUT = pi_sim['Input']
     
 # snow cover (land)
 #------------------
@@ -36,6 +36,8 @@ INPUT = pi_data['Input']
 zemba_snc_monthly = calculate_monthlies(pi["snow_fraction_land"], Var["lat"].size)
 zemba_snc_nh      = np.nansum(zemba_snc_monthly[Var["idxnh"].astype("int")]*Var["larea"][Var["idxnh"].astype("int")].reshape(18, 1), axis=0)
 zemba_snc_sh      = np.nansum(zemba_snc_monthly[Var["idxsh"].astype("int")]*Var["larea"][Var["idxsh"].astype("int")].reshape(18, 1), axis=0)
+# zemba_snc_nh      = np.nansum(zemba_snc_monthly[Var["idxnh"].astype("int")]*Var["larea"][Var["idxnh"].astype("int")].reshape(18, 1), axis=0)
+# zemba_snc_sh      = np.nansum(zemba_snc_monthly[Var["idxsh"].astype("int")]*Var["larea"][Var["idxsh"].astype("int")].reshape(18, 1), axis=0)
 
 # global
 zemba_snc_nh_global = np.average(zemba_snc_nh, weights = Var["days_in_months"])
@@ -56,7 +58,7 @@ zemba_sic_sh_global = np.average(zemba_sic_sh[0,:], weights = Var["days_in_month
 #-----------------------------------
 
 # load annual data
-noresm2 = np.loadtxt(script_path+'/other_data/noresm2/noresm2_snc_monthly.txt', skiprows=5, usecols=[1,2,3,4,5,6,7,8,9,10,11,12])
+noresm2 = np.loadtxt(input_path+'/other_data/noresm2/noresm2_snc_monthly.txt', skiprows=5, usecols=[1,2,3,4,5,6,7,8,9,10,11,12])
 noresm2_sic_nh = noresm2[0,:]*1e12
 noresm2_sic_sh = noresm2[1,:]*1e12
 noresm2_snc_nh = noresm2[2,:]*1e12
@@ -73,7 +75,7 @@ noresm2_snc_sh_global = np.average(noresm2_snc_sh, weights = Var["days_in_months
 #---------------------------
 
 # load annual data
-era5 = np.loadtxt(script_path+'/other_data/era5/era5_snc_monthly.txt', skiprows=5, usecols=[1,2,3,4,5,6,7,8,9,10,11,12])
+era5 = np.loadtxt(input_path+'/other_data/era5/era5_snc_monthly.txt', skiprows=5, usecols=[1,2,3,4,5,6,7,8,9,10,11,12])
 era5_sic_nh = era5[0,:]*1e12
 era5_sic_sh = era5[1,:]*1e12
 era5_snc_nh = era5[2,:]*1e12

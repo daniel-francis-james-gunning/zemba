@@ -11,8 +11,8 @@ import os
 import importlib
 
 # paths
-output_path  = os.path.dirname(os.getcwd()) + '/equilibrium/' 
-script_path  = os.path.dirname(os.path.dirname(os.path.dirname(output_path)))
+output_path  = os.path.dirname(os.getcwd()) 
+script_path  = os.path.dirname(output_path)
 input_path   = script_path + '/input'
 
 # load zemba files
@@ -22,7 +22,7 @@ from zemba import *
 
 # load pre-industrial input
 os.chdir(input_path)
-file = importlib.import_module('input_pi_res1')
+file = importlib.import_module('input_equili_pi')
 input_zemba = file.input_zemba
 os.chdir(script_path)
 

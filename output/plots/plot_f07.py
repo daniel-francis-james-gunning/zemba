@@ -23,12 +23,12 @@ from utilities import *
 # load zemba pre-industrial sim
 #------------------------------
 
-with open('output/equilibrium/pi_moist_res5.0.pkl', 'rb') as f:
-    pi_data = pickle.load(f)
+with open(output_path+'/output_equili_pi_res5.0.pkl', 'rb') as f:
+    pi_sim = pickle.load(f)
     
-pi    = pi_data['StateYear']
-Var   = pi_data['Var']
-INPUT = pi_data['Input']
+pi    = pi_sim['StateYear']
+Var   = pi_sim['Var']
+INPUT = pi_sim['Input']
 
 
 # northward flux of moist static energy in the atmosphere
@@ -79,19 +79,19 @@ def inferred_heat_transport(energy_in, lat):
     return result
 
 # load annual data
-noresm2_lat     = np.loadtxt(script_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=0)
-noresm2_pr      = np.loadtxt(script_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=2)
-noresm2_prsn    = np.loadtxt(script_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=3)
-noresm2_evap    = np.loadtxt(script_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=4)
-noresm2_rsdt    = np.loadtxt(script_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=5)
-noresm2_rsut    = np.loadtxt(script_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=6)
-noresm2_rsds    = np.loadtxt(script_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=7)
-noresm2_rsus    = np.loadtxt(script_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=8)
-noresm2_rlut    = np.loadtxt(script_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=9)
-noresm2_rlds    = np.loadtxt(script_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=10)
-noresm2_rlus    = np.loadtxt(script_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=11)
-noresm2_shf     = np.loadtxt(script_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=12)
-noresm2_lhf     = np.loadtxt(script_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=13)
+noresm2_lat     = np.loadtxt(input_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=0)
+noresm2_pr      = np.loadtxt(input_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=2)
+noresm2_prsn    = np.loadtxt(input_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=3)
+noresm2_evap    = np.loadtxt(input_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=4)
+noresm2_rsdt    = np.loadtxt(input_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=5)
+noresm2_rsut    = np.loadtxt(input_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=6)
+noresm2_rsds    = np.loadtxt(input_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=7)
+noresm2_rsus    = np.loadtxt(input_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=8)
+noresm2_rlut    = np.loadtxt(input_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=9)
+noresm2_rlds    = np.loadtxt(input_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=10)
+noresm2_rlus    = np.loadtxt(input_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=11)
+noresm2_shf     = np.loadtxt(input_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=12)
+noresm2_lhf     = np.loadtxt(input_path+'/other_data/noresm2/noresm2_annual.txt', skiprows=5, usecols=13)
 
 # net radiation at TOA
 rtnet_noresm2 = (noresm2_rsdt - noresm2_rsut) - noresm2_rlut
