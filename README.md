@@ -50,9 +50,9 @@ For replication of the published results, please use **`zemba_v01`**.
 
 ---
 
-### 🔹 zemba_v02
+### 🔹 zemba_v01.1
 
-The release **`zemba_v02`** includes updates enabling transient simulations of the model using a High-Performance Computing (HPC) system.
+The release **`zemba_v01.1`** includes updates enabling transient simulations of the model using a High-Performance Computing (HPC) system.
 
 #### Key Additions
 
