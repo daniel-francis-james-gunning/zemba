@@ -50,23 +50,23 @@ For replication of the published results, please use **`zemba_v01`**.
 
 ---
 
-## 🔹 zemba_v02
+### 🔹 zemba_v02
 
 The release **`zemba_v02`** includes updates enabling transient simulations of the model using a High-Performance Computing (HPC) system.
 
-### Key Additions
+#### Key Additions
 
 > `/hpc/`
 
-: Contains scripts for submitting and managing transient simulations on the HPC system, including the main launch script 'transient_launch.py'
+Contains scripts for submitting and managing transient simulations on the HPC system, including the main launch script 'transient_launch.py'
 
  > `/output/transient.ipynb`
 
- : Jupyter notebook for analysing and plotting transient simulation output.
+ Jupyter notebook for analysing and plotting transient simulation output.
 
  > `/output/paper2/`
 
  Contains figures generated for the transient simulations.
 
 
- Due to file size limitations, raw model output files are not stored in this repository. They are typically located on the HPC system in: '/hpc/transient_standard/'. Output data are available upon request.
+ Due to file size limitations, raw model output files are not stored in this repository. They are typically located on the HPC system in '/hpc/transient_standard/'. Output data are available upon request.
