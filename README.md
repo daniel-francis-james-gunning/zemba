@@ -30,10 +30,43 @@ We recommend creating a new conda environment in the command line (named in this
 conda create -n zemba_env python numpy numba xarray proplot matplotlib pandas
 ```
 
-## Running the model
+---
 
-To run an equillibirum simulation of the model for the pre-industrial, you can use either the 'equilirun_template.py' in an integrated development environment (IDE) of your choice or go through the the jupyter notebook file "example_run.ipynb".
+## Releases
 
-More details on ZEMBA can be found in the "example_run.ipynb" jupyter notebook, which goes through an example of running the model and plotting the data....
+---
 
-The model and this Github page are still in development. If anything is unclear or not working, contact me at : daniel.gunning@uib.no
+### 🔹 zemba_v01
+
+The release **`zemba_v01`** contains all code required to reproduce the equilibrium simulations and results presented in:
+
+> **ZEMBA v1.0: an energy and moisture balance climate model to investigate Quaternary climate**  
+> https://doi.org/10.5194/gmd-18-2479-2025
+
+This version is archived to ensure full reproducibility of the published results.
+
+⚠️ The latest development version is **not guaranteed** to reproduce these equilibrium experiments.  
+For replication of the published results, please use **`zemba_v01`**.
+
+---
+
+## 🔹 zemba_v02
+
+The release **`zemba_v02`** includes updates enabling transient simulations of the model using a High-Performance Computing (HPC) system.
+
+### Key Additions
+
+> `/hpc/`
+
+: Contains scripts for submitting and managing transient simulations on the HPC system, including the main launch script 'transient_launch.py'
+
+ > `/output/transient.ipynb`
+
+ : Jupyter notebook for analysing and plotting transient simulation output.
+
+ > `/output/paper2/`
+
+ Contains figures generated for the transient simulations.
+
+
+ Due to file size limitations, raw model output files are not stored in this repository. They are typically located on the HPC system in: '/hpc/transient_standard/'. Output data are available upon request.
