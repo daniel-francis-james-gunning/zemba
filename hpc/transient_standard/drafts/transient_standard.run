@@ -1,0 +1,31 @@
+#!/bin/bash
+
+#SBATCH --account=nn4659k
+#SBATCH --time=85:00:00
+#SBATCH --mem-per-cpu=10G
+#SBATCH --nodes=1 --ntasks-per-node=1 --cpus-per-task=1
+
+## Set up job environment:
+set -o errexit  # Exit the script on any error
+set -o nounset  # Treat any unset variables as an error
+
+module --quiet purge
+module load Miniconda3/22.11.1-1
+module list
+
+# Set the ${PS1} (needed in the source of the Anaconda environment)
+export PS1=\$
+
+# Source the conda environment setup
+# The variable ${EBROOTANACONDA3} or ${EBROOTMINICONDA3}
+# So use one of the following lines
+# comes with the module load command
+# source ${EBROOTMINICONDA3}/etc/profile.d/conda.sh
+source ${EBROOTMINICONDA3}/etc/profile.d/conda.sh
+
+#Deactivate any spill-over environment from the login node
+conda deactivate &>/dev/null
+
+conda activate $HOME/.conda/envs/zemba
+
+python transient_run.py
