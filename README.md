@@ -17,7 +17,7 @@ There are two options for use of ZEMBA
 
 ```
 cd your_path_to_the_zemba_code
-git clone https://github.com/l975421700/Finse_data_analysis
+git clone https://github.com/daniel-francis-james-gunning/zemba.git
 ```
 
 ## Setting up the conda environment
