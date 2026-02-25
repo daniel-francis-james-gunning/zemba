@@ -69,4 +69,4 @@ Contains scripts for submitting and managing transient simulations on the HPC sy
  Contains figures generated for the transient simulations.
 
 
- Due to file size limitations, raw model output files are not stored in this repository. They are typically located on the HPC system in '/hpc/transient_standard/'. Output data are available upon request.
+ Due to file size limitations, raw model output files are not stored in this repository. They are typically located in '/hpc/transient_standard/'. Output data are available upon request.
