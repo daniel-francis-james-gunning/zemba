@@ -2110,6 +2110,305 @@ def sea_ice(to, tsi, sivol, snfl, sifraction, ebm_lat, ls, ice_rho, Lm,
 
 
 @njit(nogil = True, cache=True)
+def fixed_sea_ice(to, tsi, sivol, snfl, sifraction, ebm_lat, ls, ice_rho, Lm,
+            Ksi, ocean_hc, o_area, ebm_step, sea_ice_sphc, si_ithick):   
+    
+    '''
+    For fixed sea ice areal extents ...
+    
+    For ocean temperatures above or below freezing, the  
+    Computes sea-ice volume and the fraction of ocean surface
+    area based on the surface ocean temperature. Based on the 
+    parameterizations of Gildor and Tziperman (2001).
+    '''
+    
+    # Set the ice volume of the previous time-step.
+    #----------------------------------------------
+    
+    #----> sivol_t1 = sea ice volume in previous time step
+    sivol_t1 = sivol.copy() # m^3
+    
+    #----> sivol_t2 = sea ice volume in current time step (after this function)
+    sivol_t2 = np.zeros((ebm_lat.size)) # m^3
+    sivol_t2[ls] = np.NaN
+    
+  
+    # Set the surface ocean temperature of the previous time-step.
+    #------------------------------------------------------------
+    
+    #----> so_t1 = surface ocean temp in previous time step
+    so_t1 = to.copy() # m^3
+    
+    #----> so_t2 = surfa ocean temp in current time step (after this function)
+    so_t2 = so_t1.copy()
+    
+ 
+    # Set the sea-ice temperature of the previous time-step.
+    #-------------------------------------------------------
+    
+    #----> tsi_t1 = sea ice temperature in previous time step
+    tsi_t1 = tsi.copy()
+    
+    #----> tsi_t2 = sea ice temperature in current time step
+    tsi_t2 = np.zeros((ebm_lat.size)) # m^3
+    tsi_t2[ls] = np.NaN
+    
+
+    # Set the sea-ice fraction of the previous time-step.
+    #----------------------------------------------------\
+    
+    #----> si_fraction_t1 = sea ice fraction in previous time step
+    si_fraction_t1 = sifraction.copy()
+    
+    #----> si_fraction_t1 = sea ice fraction in current time step
+    si_fraction_t2 = np.zeros((ebm_lat.size)) # m^3
+    tsi_t2[ls] = np.NaN
+    
+
+    # Initialize arrays for storing some ice volume related variables
+    #----------------------------------------------------------------
+    
+    h_avail          = np.zeros((ebm_lat.size))   # Energy available for sea-ice formation (W)
+    h_need1          = np.zeros((ebm_lat.size))   # Energy needed to melt all sea-ice (W)
+    h_need2          = np.zeros((ebm_lat.size))   # Energy needed to melt all sea-ice (W)
+    si_melt_flux     = np.zeros((ebm_lat.size))   # Sea ice melt flux (in W/m2)
+    sf_vol           = np.zeros((ebm_lat.size))   # snowfall in m^3
+    si_thick         = np.zeros((ebm_lat.size))   # Sea ice thickness (m)
+    si_thick[ls]     = np.NaN
+    exc_melt         = np.zeros((ebm_lat.size))   # Excess melt ()
+    exc_melt[ls]     = np.NaN
+    
+
+    # Some constants
+    #---------------
+    
+    rho_lm = ice_rho * Lm  # density x latent heat of fusion.
+    
+
+    # Sea ice formation
+    #------------------
+    
+    # locate zonal bands where surface ocean temperature is below freezing point
+    i = np.where(so_t1 < Ksi)
+    
+    
+    # calculate energy available for surface freezing (in Watts or J/s)
+    h_avail[i] = ( ( (ocean_hc*o_area[i]) 
+                  
+                  / ebm_step) 
+    
+                  * (Ksi - so_t1[i]) )
+    
+    
+    # Convert surface snowfall into volume of ice addition
+    sf_vol[i] = ((snfl[i] / ice_rho) # in m/s
+              * (o_area[i] * si_fraction_t1[i]))  # to ---> m^3/s
+                  #|
+                  #------> multiply by surface of sea-ice to get volume
+    
+    # Add sea ice from surface water freezing and snowfall
+    sivol_t2[i] = ((ebm_step * # in s 
+                    
+                    ((h_avail[i] / (rho_lm)) # m^3/s sea-ice formation
+                     
+                     + sf_vol[i])) # in m^3/s snowfall gain
+                    
+                     + sivol_t1[i]) # + sea ice volume of previous timestep
+    
+    so_t2[i] = Ksi
+
+    
+    #----------------
+    # Sea ice melting
+    #----------------
+    
+    # locate zonal bands where surface ocean temperature is above freezing point
+    j = np.where((so_t1 > Ksi) & (sivol_t1 > 0))
+    
+    
+    # calculate energy available for surface melting (in Watts or J/s)
+    h_avail[j] = ( ( (ocean_hc*o_area[j]) 
+                  
+                  / ebm_step) 
+    
+                  * (Ksi - so_t1[j]) )
+    
+    # Convert surface snowfall into volume of ice addition
+    sf_vol[j] = ((snfl[j] / ice_rho) # in m/s
+              * (o_area[j] * si_fraction_t1[j]))  
+                  #|
+                  #------> multiply by surface of sea-ice to get volume
+                  
+
+    # Energy need to raise the ice temperature to freezing point 
+    h_need1[j] = ( (Ksi - tsi_t1[j]) *
+                  
+                  (ice_rho * sea_ice_sphc * si_ithick[j] 
+                   * (o_area[j] * si_fraction_t1[j]) )
+                  
+                  )  / ebm_step   # in J/s 
+    
+
+    # Energy needed to melt all the ice
+    h_need2[j] = ((sivol_t1[j]) * (rho_lm) # Joules
+                 / ebm_step) # J/s
+    
+    
+    
+    # not enough energy to raise to melting point
+    #--------------------------------------------
+    
+    # locate zonal bands where not enough energy to raise temperature of ice
+    j1 = np.where((so_t1 > Ksi) 
+                  & (sivol_t1 > 0) 
+                  & (-(h_avail) < h_need1) )
+    
+    # raise the temperature of the ice
+    tsi_t2[j1] = ( tsi_t1[j1] -
+                 
+                 ( h_avail[j1] / 
+                     
+                 ( ice_rho * sea_ice_sphc * si_ithick[j1]
+                       * (o_area[j1] * si_fraction_t1[j1]) ) )
+                                                
+                  * ebm_step )  # in J/s 
+    
+    # set ice volume
+    sivol_t2[j1] = np.copy(sivol_t1[j1])
+    
+    # set ocean temperature
+    so_t2[j1] = Ksi
+    
+       
+    # Exceeds melting point but can't melt all ice
+    #---------------------------------------------
+    
+    # # where energy can melt raise to freezing point but not melt all ice
+    j2 = np.where((so_t1 > Ksi) 
+                  & (sivol_t1 > 0) 
+                  & (-(h_avail) > h_need1)
+                  & (-(h_avail) < (h_need1 + h_need2)))
+    
+    
+    # Remove sea-ice due to surface melting- considering snowfall gains.
+    sivol_t2[j2] = ( (ebm_step * # in s
+                          
+                     ((h_avail[j2] + h_need1[j2]) /(rho_lm)) # in m^3/s sea-ice melting 
+                     
+                     + sf_vol[j2]) # in m^3/s snowfall gain
+                     
+                     + sivol_t1[j2]) # + ice volume of previous time step.
+                     
+                          
+    # where sea-ice is melting, but not all ice has melted, set surface ocean
+    # temperature to freezing
+    so_t2[j2] = Ksi 
+    
+    # where sea-ice is melting, but not all ice has melted, set ice
+    # temperature to freezing
+    tsi_t2[j2] = Ksi
+    
+    
+    # Raise ice temperature and melt all ice
+    #---------------------------------------
+    
+    # locate zonal bands where there is enough energy available to melt the ice
+    j3 = np.where((so_t1 > Ksi) 
+                  & (sivol_t1 > 0) 
+                  & (-(h_avail) > h_need1)
+                  & (-(h_avail) > (h_need1 + h_need2)))
+    
+    # Remove sea-ice due to surface melting- considering snowfall gains.
+    sivol_t2[j3] = ( (ebm_step * # in s
+                          
+                     ((h_avail[j3] + h_need1[j3]) /(rho_lm))# in m^3/s sea-ice melting 
+                     
+                     + sf_vol[j3]) # in m^3/s snowfall gain
+                     
+                     + sivol_t1[j3]) # + ice volume of previous time step.
+
+    
+    # convert excess melt into additional surface heating
+    so_t2[j3] = Ksi + ( ((0 - sivol_t2[j3]) * (rho_lm))
+                              / o_area[j3] ) / ocean_hc
+    
+    # set ice volume to zero
+    sivol_t2[j3] = 0
+
+    #-------------------------------
+    # Calculate new sea-ice fraction
+    #-------------------------------
+    
+    # calculate the sea-ice cover
+    #----------------------------
+    
+    # where sea ice cover is less than ocean surface area
+    k = np.where((sivol_t2 > 0))
+    
+    # set the new sea-ice fraction
+    si_fraction_t2[k] = sivol_t2[k] / (si_ithick[k] * o_area[k])
+    
+    # set the sea ice thickness to the standard value
+    si_thick[k] = si_ithick[k] 
+    
+    # when sea-ice cover < 1.
+    #------------------------
+    k1 = np.where((si_fraction_t2 > 0.) & (si_fraction_t2 < 1.))
+    
+    # set the sea-ice temperature to zero
+    tsi_t2[k1] = Ksi
+    
+    # when sea-ice cover > 1.
+    #------------------------
+    k2 = np.where(si_fraction_t2 > 1.) 
+
+    # Let the sea-ice temperature drop below zero.
+    
+    # Derivation:
+        
+        # State["Tsi"] = Var["Ksi"] + [ ( (1 - State["si_fraction"]) * Var["oarea"]
+        # * State["si_thick"] * Var["rho_ice"] * Var["Lm"] ) 
+        
+        #   / (Var["oarea"]*State["si_thick"] * Var["rho_ice"] * Var["sea_ice_sphc"])
+        
+        # )
+        
+        # ======
+        
+        # State["Tsi"] = Var["Ksi"] + 
+        
+        # [ ( (1 - State["si_fraction"]) * Var["Lm"]/Var["sea_ice_sphc"] ) 
+        
+    tsi_t2[k2] = tsi_t1[k2] + ( (1-si_fraction_t2[k2]) * 
+                                 (Lm/sea_ice_sphc) )
+    
+    # set the new sea-ice volume
+    sivol_t2[k2] = si_ithick[k2] * o_area[k2]
+    
+    # set new sea-ice fraction
+    si_fraction_t2[k2] = 1.
+    
+    si_fraction_t2[ls] = np.NaN
+    
+    
+    #--------------------------------------
+    # Record melting and ice volume changes
+    #--------------------------------------
+    
+    # Record changes in ice volume
+    sivol_change = sivol_t2 - sivol_t1
+    
+    # Record changes in energy fluxes due to sea ice changes
+    si_melt_flux = ((sivol_change * (rho_lm)) # in Joules
+                        / (o_area * ebm_step)) # to W/m^2
+    
+    si_melt_flux[ls] = np.NaN
+
+   
+    return so_t2, tsi_t2, si_thick, sivol_t2, si_fraction_t2, si_melt_flux
+
+
+@njit(nogil = True, cache=True)
 def snow_melt(lat, snow_thick, snow_fraction, ts, lr, height, K, land_hc, Lm, 
               ice_rho, mask, secs_in_day, sarea, snow):
    
@@ -2580,14 +2879,11 @@ def ebm(Var, State, INPUT, I, znth_dw, settings, key_variables,
         fixed_ocean_albedo=None,
         
         # fixed land snow 
-        fixed_snow_fraction=None,
-        fixed_snow_thick=None,
-        fixed_snow_melt=None,
+        fixed_sc_fraction=None,
         
         # fixed sea ice
         fixed_si_fraction=None,
-        fixed_si_thick=None,
-        fixed_si_melt=None,
+        fixed_si_temp=None,
         
         # fixed ocean transport
         fixed_ocean_transport=None,
@@ -2671,7 +2967,11 @@ def ebm(Var, State, INPUT, I, znth_dw, settings, key_variables,
             
             if fixed_land_albedo is None: # albedo calculated internally
             
-                if snow == 0: # as a function of surface temperature
+                if snow == -1: # no snow
+                
+                    State['alpha_land'] = np.zeros((Var['lat'].size))+INPUT['alphag']
+            
+                elif snow == 0: # as a function of surface temperature
             
                     State["alpha_land"], State["snow_fraction_land"] = surface_albedo_land_v2(Var["lat"], INPUT["land_height"], Var["lr"], INPUT["alphag"], State["Tal"], State["Tl"], INPUT["alphas"], INPUT["alphaws"], INPUT["alphai"], znth_dw[:,day], Var["land_mask"], INPUT['ice_fraction'])
                 
@@ -2907,22 +3207,44 @@ def ebm(Var, State, INPUT, I, znth_dw, settings, key_variables,
             # Snow accumulation over land
             #----------------------------
             
-            if fixed_snow_fraction is None and fixed_snow_thick is None and fixed_snow_melt is None: # snow is calculated internally...
-            
-                if ( (hydro == 1) & (snow != 0) ): # if hydrological cycle is on.
-                    
+            if snow != -1 and snow != 0: 
+                
+
+                if fixed_sc_fraction is None: # snow is calculated internally...
+                
                     State["snow_fraction_land"], State["snow_thick"] = snow_accumulation(State["snowfall_fraction_land"], State["snow_fraction_land"], State["snow_thick"], State["snowfall_rate_land"], State["precip_flux_land"], Var["sarea"], Var['ice_rho'], Var["secs_in_day"], snow)
                 
-                    # Calculate equatorward edge of snow in each hemisphere
-                    State["sc_edge_nh"], State["sc_edge_sh"] = snow_edge(State["snow_fraction_land"], Var)
+                        
+                else: # snow is prescribed externally (for sensitivity experiments)
+                
+                    State['snow_fraction_land'] = fixed_sc_fraction[:,day]
                     
-            else: # snow is prescribed externally (for sensitivity experiments)
+            else:
+                
+                pass
+                        
+                        
+                        
+                    
+                    
+
             
-                State['snow_fraction_land'] = fixed_snow_fraction[:,day]
+            # if fixed_snow_fraction is None and fixed_snow_thick is None and fixed_snow_melt is None: # snow is calculated internally...
+            
+            #     if ( (hydro == 1) & (snow > 0) ): # if hydrological cycle is on.
+                    
+            #         State["snow_fraction_land"], State["snow_thick"] = snow_accumulation(State["snowfall_fraction_land"], State["snow_fraction_land"], State["snow_thick"], State["snowfall_rate_land"], State["precip_flux_land"], Var["sarea"], Var['ice_rho'], Var["secs_in_day"], snow)
                 
-                State['snow_thick'] = fixed_snow_thick[:,day]
+            #         # Calculate equatorward edge of snow in each hemisphere
+            #         State["sc_edge_nh"], State["sc_edge_sh"] = snow_edge(State["snow_fraction_land"], Var)
+                    
+            # else: # snow is prescribed externally (for sensitivity experiments)
+            
+            #     State['snow_fraction_land'] = fixed_snow_fraction[:,day]
                 
-                State['melt'] = fixed_snow_melt[:,day]
+            #     State['snow_thick'] = fixed_snow_thick[:,day]
+                
+            #     State['melt'] = fixed_snow_melt[:,day]
                 
                 
             #--------------------
@@ -2960,18 +3282,36 @@ def ebm(Var, State, INPUT, I, znth_dw, settings, key_variables,
             # Surface melting and surface heat modifications (for snow covered land)
             #-----------------------------------------------------------------------
             
-            if fixed_snow_fraction is None and fixed_snow_thick is None and fixed_snow_melt is None: # snow is calculated internally...
+            if snow != -1 and snow != 0: 
             
-                if ( (hydro == 1) & (snow != 0) ): # if hydrological cycle is on.
+                if fixed_sc_fraction is None: # snow is calculated internally...
                     
                     State["snow_thick"], State["snow_fraction_land"], State["Tl"], State["melt"], State["melt_flux"]  = snow_melt(Var["lat"], State["snow_thick"], State["snow_fraction_land"], State["Tl"], Var["lr"], INPUT["land_height"], Var["K"], Var["land_hc"], Var["Lm"], 
                                   Var["ice_rho"], Var["land_mask"], Var["secs_in_day"], Var["sarea"], snow)
                     
-            else: # snow is prescribed externally (for sensitivity experiments)
-            
-                pass
+                else: # snow is prescribed externally (for sensitivity experiments)
+                
     
             
+                    pass
+                
+            else:
+                
+                pass
+            
+            # calculate areal extent of sea-ice in each hemisphere
+            State["sc_area_nh"][0] = np.nansum(State["snow_fraction_land"][Var["idxnh"].astype('i8')]*Var["larea"][Var["idxnh"].astype('i8')])
+            State["sc_area_sh"][0] = np.nansum(State["snow_fraction_land"][Var["idxsh"].astype('i8')]*Var["larea"][Var["idxsh"].astype('i8')])
+    
+            # Calculate equatorward edge of snow in each hemisphere
+            State["sc_edge_nh"], State["sc_edge_sh"] = snow_edge(State["snow_fraction_land"], Var)
+            
+            # calculate areal extent of land-ice in each hemisphere
+            State["ice_area_nh"][0] = np.nansum(INPUT["ice_fraction"][Var["idxnh"].astype('i8')]*Var["larea"][Var["idxnh"].astype('i8')])
+            State["ice_area_sh"][0] = np.nansum(INPUT["ice_fraction"][Var["idxsh"].astype('i8')]*Var["larea"][Var["idxsh"].astype('i8')])
+    
+        
+    
             #-----------------------------------------------------------------------.
             # Weighted average atmospheric temperature and humidities (for transport)
             #-----------------------------------------------------------------------.
@@ -2994,7 +3334,7 @@ def ebm(Var, State, INPUT, I, znth_dw, settings, key_variables,
             
                 # define time step
                 if INPUT['res']==1.:
-                    small_step = 50
+                    small_step = 15
                     
                 if INPUT['res']==2.5:
                     small_step = 3
@@ -3173,7 +3513,7 @@ def ebm(Var, State, INPUT, I, znth_dw, settings, key_variables,
                                                 State["vdiff_conv"] +
                                                 State["hdiffs_conv"]
                                                 )
-                    
+                        
             #---------------------------------
             # Calculate mean ocean temperature
             #---------------------------------
@@ -3195,8 +3535,9 @@ def ebm(Var, State, INPUT, I, znth_dw, settings, key_variables,
             #------------------------------
             # Sea ice formation and melting
             #------------------------------
+        
             
-            if fixed_si_fraction is None and fixed_si_thick is None and fixed_si_melt is None: # snow is calculated internally...
+            if fixed_si_fraction is None and fixed_si_temp is None: # snow is calculated internally...
             
                 if (seaice == 1): # if sea ice is on.
                     
@@ -3215,10 +3556,7 @@ def ebm(Var, State, INPUT, I, znth_dw, settings, key_variables,
             
                 State['si_fraction'] = fixed_si_fraction[:,day]
                 
-                State['si_thick'] = fixed_si_thick[:,day]
-                
-                State['si_melt_flux'] = fixed_si_melt[:,day]
-            
+                State['Tsi'] = fixed_si_temp[:,day]
     
             #--------------------------
             # Surface ocean temperature
@@ -3260,9 +3598,9 @@ def ebm(Var, State, INPUT, I, znth_dw, settings, key_variables,
             Save key state variables for every model year.
             """
             
-            for keys in key_variables:
+            for key in key_variables:
                 
-                StateAnnual[keys][year,day,:] = State[keys]
+                StateAnnual[key][year,day,:] = State[key]
                 
             
             """
@@ -3307,6 +3645,6 @@ def ebm(Var, State, INPUT, I, znth_dw, settings, key_variables,
                     
         
     return State, StateYear, StateAnnual
-
+#
     
          

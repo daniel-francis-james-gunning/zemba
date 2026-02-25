@@ -217,5 +217,95 @@ def spatial_average(data, xlatitude, xlatitude_spacing, fraction):
     zones.append(np.round(np.nansum(data[i60Nn:i90N+1]*surface_area[i60Nn:i90N+1])/np.nansum(surface_area[i60Nn:i90N+1]),2))
     
     return np.array(zones)
+
+
+def find_differences_in_model_input(Settings1, Settings2, Var1, Var2, Input1, Input2):
+    
+    # find differences in settings:
+    # ============================
+        
+    for key in Settings1.keys():
+        
+        try:
+        
+            if Settings1[key] != Settings2[key]:
+                print (f"Difference in Setting: {key}")
+        
+        except KeyError:
+            print(f"{key}'is missing in one or more")
+    
+    # find differences in constants
+    # =============================
+    
+    for key in Var1.keys():
+        
+        try:
+        
+            if len(Var1[key]) == 1:
+                
+                if Var1[key] != Var2[key]:
+                    print (f"Difference in Constants: {key}")
+            
+        except KeyError:
+            print(f"{key}'is missing in one or more")
+            
+        try:
+                
+            if len(Var1[key]) > 1:
+                
+                if np.array_equal(Var1[key], Var2[key], equal_nan=True) == False:
+                    print (f"Difference in Constants: {key}")
+                    
+        except KeyError:
+            print(f"{key}'is missing in one or more")
+                
+    # find differences in INPUT
+    # =============================
+    
+    for key in Input1.keys():
+        
+        try:
+        
+            if len(Input1[key]) == 1:
+                
+                if Input1[key] != Input2[key]:
+                    print (f"Difference in Constants: {key}")
+                    
+        except KeyError:
+            print(f"{key}'is missing in one or more")
+            
+        
+        try:
+                
+            if len(Input1[key]) > 1:
+                
+                if np.array_equal(Input1[key], Input2[key], equal_nan=True) == False:
+                    print (f"Difference in Constants: {key}")
+            
+        except KeyError:
+            print(f"{key}'is missing in one or more")
+            
+            
+
+@njit(nogil=True)
+def find_month(day):
+    thresholds = (30, 58, 89, 119, 150, 180, 211, 242, 272, 303, 333)
+    month = 0
+    for threshold in thresholds:
+        if day > threshold:
+            month += 1
+        else:
+            break
+    return month
+        
+    
+
+            
+           
+                    
+            
+            
+    
+    
     
     

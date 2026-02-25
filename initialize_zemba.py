@@ -1187,6 +1187,11 @@ def initialize_state(Var, INPUT):
     State["lhf_snowfall_ocean"]      = np.copy(State["rsut_land"]) # Snowfall heat flux (W m^-2)
     State["sc_edge_nh"]              = np.zeros((1))               # Snow cover edge in NH    
     State["sc_edge_sh"]              = np.zeros((1))               # Snow cover edge in SH   
+    State["sc_area_nh"]              = np.zeros((1))               # Snow cover area in NH    
+    State["sc_area_sh"]              = np.zeros((1))               # Snow cover area in SH  
+    
+    State["ice_area_nh"]              = np.zeros((1))               # Ice cover area in NH    
+    State["ice_area_sh"]              = np.zeros((1))               # Ice cover area in SH   
     
     # Weighted average 
     State["precip_flux"]       = np.copy(State["rsut_land"]) # Precipitation flux (kg m^-2 s^-1))
