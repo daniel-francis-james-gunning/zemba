@@ -1,0 +1,55 @@
+#!/bin/sh -e
+
+PREFIX=transient_standard
+NAME=input_transient_preMPT_precession_fxloasi
+SRC=$HOME/zemba/work/${PREFIX}/${NAME}
+SRD=$HOME/zemba/model
+
+RUNDIR=/cluster/work/users/$USER/${PREFIX}/${NAME}
+SCRATCH=/cluster/work/jobs/$SLURM_JOB_ID
+
+mkdir -p $RUNDIR
+cd $RUNDIR
+
+rm -f zemba.py
+rm -f initialize_zemba.py
+rm -f solar_forcing.py
+rm -f laskar_2006.txt
+rm -rf other_data/
+rm -f albedo_core.py
+rm -f atm_transport_core.py
+rm -f hydrology_core.py
+rm -f ocean_transport_core.py
+rm -f radiation_core.py
+rm -f seaice_core.py
+rm -f snow_core.py
+rm -f sc_fraction_pi_res1.0.txt
+rm -f si_fraction_pi_res1.0.txt
+rm -f si_temperature_pi_res1.0.txt
+rm -f lalbedo_pi_res1.0.txt
+rm -f oalbedo_pi_res1.0.txt
+
+
+cp ${SRD}/zemba.py zemba.py
+cp ${SRD}/initialize_zemba.py initialize_zemba.py
+cp ${SRD}/solar_forcing.py solar_forcing.py
+cp ${SRD}/laskar_2006.txt laskar_2006.txt
+cp -r ${SRD}/other_data other_data
+cp ${SRD}/albedo_core.py albedo_core.py
+cp ${SRD}/atm_transport_core.py atm_transport_core.py
+cp ${SRD}/hydrology_core.py hydrology_core.py
+cp ${SRD}/ocean_transport_core.py ocean_transport_core.py
+cp ${SRD}/radiation_core.py radiation_core.py
+cp ${SRD}/seaice_core.py seaice_core.py
+cp ${SRD}/snow_core.py snow_core.py
+cp ${SRD}/sc_fraction_pi_res1.0.txt sc_fraction_pi_res1.0.txt
+cp ${SRD}/si_fraction_pi_res1.0.txt si_fraction_pi_res1.0.txt
+cp ${SRD}/si_temperature_pi_res1.0.txt si_temperature_pi_res1.0.txt
+cp ${SRD}/lalbedo_pi_res1.0.txt lalbedo_pi_res1.0.txt
+cp ${SRD}/oalbedo_pi_res1.0.txt oalbedo_pi_res1.0.txt
+
+
+cp ${SRC}/transient_standard.run transient_standard.run
+cp ${SRC}/run_orbital.py run_orbital.py
+cp ${SRC}/input_transient_preMPT_precession_fxloasi.py input_transient_preMPT_precession_fxloasi.py
+sbatch transient_standard.run

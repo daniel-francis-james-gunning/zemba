@@ -1,0 +1,12 @@
+# everything inside output/
+output/*
+!output/.gitkeep
+
+# figures in phd_paper2
+phd_paper2/**/*.png
+phd_paper2/**/*.pdf
+
+# Python and Jupyter clutter, anywhere in the repo
+__pycache__/
+*.pyc
+.ipynb_checkpoints/

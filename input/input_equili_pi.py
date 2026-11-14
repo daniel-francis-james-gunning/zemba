@@ -49,7 +49,7 @@ prior = None    # intialize with arbitrary state...
 settings_zemba = Dict.empty(key_type=types.unicode_type, value_type=types.int8[:])
 
 # snowfall [ 0 = OFF, 1 = ON (uniform coverage), 2 = ON (fractional coverage) ]
-settings_zemba["snow"]=np.array([2], dtype = "int8") # <---------------------------------------- HERE
+settings_zemba["snow"]=np.array([1], dtype = "int8") # <---------------------------------------- HERE
 if input_version == 'dry':
     settings_zemba["snow"][0] = 0
     
@@ -100,7 +100,7 @@ input_zemba['ikyr']=np.array([0.])    # kyr BP for orbital parameters    # <----
 # Resolution [in degrees of latitude]
 #-----------
 
-input_zemba['res']=np.array([5.0])  # <-------------------------------------------------------- HERE
+input_zemba['res']=np.array([1.0])  # <-------------------------------------------------------- HERE
 
 if input_zemba['res'][0] == 5.:  # if 5 degree
     lat   = np.arange(-87.5, 87.5+5., 5.)
@@ -134,60 +134,22 @@ input_zemba['strength_of_overturning']=np.array([1.]) # <-----------------------
 
 input_zemba['strength_of_insolation']=np.array([1.])  # <------------------------------------------ HERE
 
-# [option to keep snow over land fixed to the pre-industrial.]  <---------------------------------- COMMENT/UNCOMMENT
-#-------------------------------------------------------------
 
-settings_zemba['fixed_snow'] = np.array([0], dtype = "int8") #--> OFF.
-fixed_snow_fraction = None
-fixed_snow_thick    = None
-fixed_snow_melt     = None
+# Option to keep albedo fixed [for orbital experiments]
+# ===========================
 
-# settings_zemba['fixed_snow'] = np.array([1], dtype = "int8") #--> ON.
-# with open(path+'/output/equilibrium/pi_moist_res5.0.pkl', 'rb') as f:
-#     pi = pickle.load(f)['StateYear']
-# fixed_snow_fraction = pi['snow_fraction_land']
-# fixed_snow_thick    = pi['snow_thick']             
-# fixed_snow_melt     = pi['melt']
+# fixed sea ice
+settings_zemba['seaice_flag']       = np.array([0], dtype = "int8")  # <------------------------------ HERE
 
+# fixed snow cover
+settings_zemba['snowcover_flag']    = np.array([0], dtype = "int8")  # <------------------------------ HERE
 
-# [option to keep sea ice fixed to the pre-industrial.]  <----------------------------------------- COMMENT/UNCOMMENT
-#------------------------------------------------------
+# fixed ocean albedo
+settings_zemba['oceanalbedo_flag']  = np.array([0], dtype = "int8")  # <------------------------------ HERE
 
-settings_zemba['fixed_seaice'] = np.array([0], dtype = "int8") #--> OFF.
-fixed_si_fraction = None
-fixed_si_thick = None
-fixed_si_melt = None
+# fixed land albedo
+settings_zemba['landalbedo_flag']   = np.array([0], dtype = "int8")  # <------------------------------ HERE
 
-# settings_zemba['fixed_seaice'] = np.array([1], dtype = "int8") #--> ON.
-# with open(path+'/output/equilibrium/pi_moist_res5.0.pkl', 'rb') as f:
-#     pi = pickle.load(f)['StateYear']
-# fixed_si_fraction = pi['si_fraction'] 
-# fixed_si_thick    = pi['si_thick']       
-# fixed_si_melt     = pi['si_melt_flux']    
-    
-# [option to keep land albedo fixed to the pre-industrial.]   <----------------------------------- COMMENT/UNCOMMENT
-#----------------------------------------------------------
-
-settings_zemba['fixed_land_albedo'] = np.array([0], dtype = "int8") #--> OFF.
-fixed_land_albedo = None 
-
-# settings_zemba['fixed_land_albedo'] = np.array([1], dtype = "int8") #--> ON.
-# with open(path+'/output/equilibrium/pi_moist_res5.0.pkl', 'rb') as f:
-#     pi = pickle.load(f)['StateYear']
-# fixed_land_albedo = pi['alpha_land']
-    
-
-# [option to keep ocean albedo fixed to the pre-industrial.]  <----------------------------------- COMMENT/UNCOMMENT
-#-----------------------------------------------------------
-
-settings_zemba['fixed_ocean_albedo'] = np.array([0], dtype = "int8") #--> OFF.
-fixed_ocean_albedo = None
-
-# settings_zemba['fixed_ocean_albedo'] = np.array([1], dtype = "int8") #--> ON.
-# with open(path+'/output/equilibrium/pi_moist_res5.0.pkl', 'rb') as f:
-#     pi = pickle.load(f)['StateYear']
-# fixed_ocean_albedo = pi['alpha_ocean'] 
-    
 
 # Land fractions <----------------------------------------------------------------------------------COMMENT/UNCOMMENT
 #---------------
@@ -296,7 +258,7 @@ input_zemba['alphas']=np.array([0.80])     # 'cold' snow  # <-------------------
 input_zemba["alphaws"]=np.array([0.4])    # 'wet' snow 
 input_zemba['alphasimx']=np.array([0.7]) # 'cold' sea ice  # <------------------------------- HERE
 input_zemba["alphasimn"]=np.array([0.7])  # 'wet' sea ice  # <-------------------------------- HERE
-input_zemba["alphai"]=np.array([0.8])     # land ice  # <------------------------------------- HERE
+input_zemba["alphai"]=np.array([0.4])     # land ice  # <------------------------------------- HERE
 
 # maximum relative humidity (kg/kg)
 input_zemba["r"]=np.array([80.]) # <---------------------------------------------------------- HERE
@@ -323,5 +285,5 @@ input_zemba["hadley_constant"] = np.array([1.03]) # maximum relative humidity <-
 # atm. diffusion coefficient. (m/s)
 input_zemba["dt"] = np.zeros((latb.size))
 idxc = np.where(latb==0.)[0][0]
-input_zemba['dt'][0:idxc] = 0.7e6 # SH <------------------------------------------------------- HERE
-input_zemba['dt'][idxc:]  = 0.84e6 # NH <------------------------------------------------------- HERE
+input_zemba['dt'][0:idxc] = 0.71e6 # SH <------------------------------------------------------- HERE
+input_zemba['dt'][idxc:]  = 0.93e6 # NH <------------------------------------------------------- HERE
