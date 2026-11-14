@@ -126,7 +126,7 @@ def inferred_heat_transport(energy_in, lat):
     return result
 
 
-def inferred_heat_transport2(energy, lat, lon):
+def inferred_heat_transport(energy, lat, lon):
     
     '''
     Infers northward heat transport from energy imbalance.
@@ -362,6 +362,7 @@ def get_constants(INPUT):
     # Four velocities fields for each resolution, corresponding to different 
     # centres of ocean circulation. Ensures each hemispheres upwelling zone
     # has the same average upwelling rate.
+    
     
     if INPUT['res']==1.:
         
@@ -776,12 +777,12 @@ def get_constants(INPUT):
     Var["ocean_hc6"] = Var["odepth"][5]*Var["ocean_sphc"]*Var["ocean_rho"]
 
     # Concatenated heat capacities for each layer
-    Var["ocean_hc"] = np.concatenate((np.zeros((Var["olat"].size)) + Var["ocean_hc1"]
-                                     ,np.zeros((Var["olat"].size)) + Var["ocean_hc2"]
-                                     ,np.zeros((Var["olat"].size)) + Var["ocean_hc3"]
-                                     ,np.zeros((Var["olat"].size)) + Var["ocean_hc4"]
-                                     ,np.zeros((Var["olat"].size)) + Var["ocean_hc5"]
-                                     ,np.zeros((Var["olat"].size)) + Var["ocean_hc6"]
+    Var["ocean_hc"] = np.concatenate((np.zeros((Var["lat"].size)) + Var["ocean_hc1"]
+                                     ,np.zeros((Var["lat"].size)) + Var["ocean_hc2"]
+                                     ,np.zeros((Var["lat"].size)) + Var["ocean_hc3"]
+                                     ,np.zeros((Var["lat"].size)) + Var["ocean_hc4"]
+                                     ,np.zeros((Var["lat"].size)) + Var["ocean_hc5"]
+                                     ,np.zeros((Var["lat"].size)) + Var["ocean_hc6"]
                                      ))
 
     # Indicies for each ocean layer in ZEMBA grid.
@@ -1234,17 +1235,17 @@ def initialize_state(Var, INPUT):
     # Ocean fluxes
     #-------------
     
-    State["advf"]        = np.zeros((Var["olatb"].size*6))       # surface advective heat flux (W)
-    State["advf_conv"]   = np.zeros((Var["olat"].size*6))        # surface advective heat flux convergence (W/m2)
-    State["hdiffs"]      = np.zeros((Var["olatb"].size*6))       # surface diffusion heat flux (W)
-    State["hdiffs_conv"] = np.zeros((Var["olat"].size*6))        # surface diffusion heat flux convergence(W/m2)
-    State["hdiffi"]      = np.zeros((Var["olatb"].size*6))       # interior diffusion heat flux (W)
-    State["hdiffi_conv"] = np.zeros((Var["olat"].size*6))        # interior diffusion heat flux convergence(W/m2)
-    State["vdiff"]       = np.zeros((Var["olat"].size*7))        # vertical diffusion heat flux (W)
-    State["vdiff_conv"]  = np.zeros((Var["olat"].size*6))        # vertical diffusion heat flux convergence (W/m2)
-    State["vadvf"]       = np.zeros((Var["olat"].size*7))        # vertical advective heat flux (W)
-    State["vadvf_conv"]  = np.zeros((Var["olat"].size*6))        # vertical advective heat flux convergence (W/m2)
-    State["ocean_conv"]   = np.zeros((Var["olat"].size*6))       # total ocean heat transport convergence (W/m2)
+    State["advf"]        = np.zeros((Var["latb"].size*6))       # surface advective heat flux (W)
+    State["advf_conv"]   = np.zeros((Var["lat"].size*6))        # surface advective heat flux convergence (W/m2)
+    State["hdiffs"]      = np.zeros((Var["latb"].size*6))       # surface diffusion heat flux (W)
+    State["hdiffs_conv"] = np.zeros((Var["lat"].size*6))        # surface diffusion heat flux convergence(W/m2)
+    State["hdiffi"]      = np.zeros((Var["latb"].size*6))       # interior diffusion heat flux (W)
+    State["hdiffi_conv"] = np.zeros((Var["lat"].size*6))        # interior diffusion heat flux convergence(W/m2)
+    State["vdiff"]       = np.zeros((Var["lat"].size*7))        # vertical diffusion heat flux (W)
+    State["vdiff_conv"]  = np.zeros((Var["lat"].size*6))        # vertical diffusion heat flux convergence (W/m2)
+    State["vadvf"]       = np.zeros((Var["lat"].size*7))        # vertical advective heat flux (W)
+    State["vadvf_conv"]  = np.zeros((Var["lat"].size*6))        # vertical advective heat flux convergence (W/m2)
+    State["ocean_conv"]   = np.zeros((Var["lat"].size*6))       # total ocean heat transport convergence (W/m2)
     
     #------------------
     # Ocean overturning
@@ -1272,13 +1273,14 @@ def initialize_state(Var, INPUT):
         State["ww"] = Var["w15s"]
     
     # vertical ocean diffusion ceofficients
-    State["dz"]  = np.zeros((Var["olat"].size)) + INPUT["dz0"]
+    State["dz"]  = INPUT["dz0"]
     
     #----------------------
     # Land snow/ice melting
     #----------------------
     
     State["melt"]      = np.copy(State["rsut_land"]) # Melting (m/year)
+    State["pmelt"]      = np.copy(State["rsut_land"]) # Potenital melt (m/year)
     State["melt_flux"] = np.copy(State["rsut_land"]) # Melt flux (W m^-2)
     
     #---------------------
